@@ -1,0 +1,1090 @@
+{
+  "description": "Actual Qwen writer development response; current public request only, no gold/future data",
+  "group_id": "6",
+  "traveler": "Benjamin",
+  "query": "I am Benjamin.\nI'm going on this trip with Kelly.\nFor lunch on the first day, I'd like a place serving French and Mediterranean food, costing between $28.7 and $43.3 per person, with a rating from 3.3 to 3.7.\n\nFor dinner on the first day, I want a spot serving Tea and American food, rated between 4.4 and 4.8.\n\nOn the first day, I’m looking for accommodation that doesn’t allow extra visitors and costs between $575.9 and $630.1 per night.\n\nFor breakfast on the second day, I want a Chinese restaurant with a rating between 4.4 and 4.8.\n\nFor dinner on the second day, I’m seeking a place serving Cafe, Seafood, and French food, rated between 4.3 and 4.9, and costing $11.2 to $26.8 per person.\n\nFor my second-day accommodation, I’d prefer a place that accommodates up to 6 people and costs between $1000.7 and $1055.3 per night.\n\nOn the third day, I want lunch at a Bakery and Pizza spot costing between $58.5 and $87.5 per person.\n\nFor dinner on the third day, I’m looking for an Indian restaurant rated between 3.7 and 4.1.\n\nFor breakfast on day 4, I want a place serving Indian, Tea, and Seafood food with a rating between 3.5 and 3.7.\n\nFor lunch on day 4, I’m looking for a Seafood restaurant costing between $74.7 and $81.3 per person.\n\nFor dinner on day 4, I want a spot rated between 2.6 and 3.0, costing $44.2 to $63.8 per person.\n\nOn day 4, I want accommodation that is a private room, non-smoking, and rated between 2.8 and 3.2.\n\nFor breakfast on day 5, I want a Chinese restaurant costing between $61.1 and $72.9 per person.",
+  "extraction": {
+    "constraints": [
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "lunch",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "French",
+            "Mediterranean"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For lunch on the first day, I'd like a place serving French and Mediterranean food",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "lunch",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 28.7,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $28.7 and $43.3 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "lunch",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 43.3,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $28.7 and $43.3 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "lunch",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 3.3
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "with a rating from 3.3 to 3.7",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "lunch",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 3.7
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "with a rating from 3.3 to 3.7",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "dinner",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Tea",
+            "American"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For dinner on the first day, I want a spot serving Tea and American food",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 4.4
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 4.4 and 4.8",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 4.8
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 4.4 and 4.8",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "accommodation",
+          "attribute": "value"
+        },
+        "operator": "EQUALS",
+        "target": {
+          "value": "no_extra_visitors"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "accommodation that doesn’t allow extra visitors",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "accommodation",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 575.9,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costs between $575.9 and $630.1 per night",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 1
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 1,
+          "slot": "accommodation",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 630.1,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costs between $575.9 and $630.1 per night",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "breakfast",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Chinese"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For breakfast on the second day, I want a Chinese restaurant",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "breakfast",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 4.4
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "with a rating between 4.4 and 4.8",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "breakfast",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 4.8
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "with a rating between 4.4 and 4.8",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "dinner",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Cafe",
+            "Seafood",
+            "French"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For dinner on the second day, I’m seeking a place serving Cafe, Seafood, and French food",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 4.3
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 4.3 and 4.9",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 4.9
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 4.3 and 4.9",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "dinner",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 11.2,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing $11.2 to $26.8 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "dinner",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 26.8,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing $11.2 to $26.8 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "accommodation",
+          "attribute": "value"
+        },
+        "operator": "EQUALS",
+        "target": {
+          "value": "accommodates_up_to_6"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "accommodates up to 6 people",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "accommodation",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 1000.7,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costs between $1000.7 and $1055.3 per night",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 2
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 2,
+          "slot": "accommodation",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 1055.3,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costs between $1000.7 and $1055.3 per night",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 3
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 3,
+          "slot": "lunch",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Bakery",
+            "Pizza"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "On the third day, I want lunch at a Bakery and Pizza spot",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 3
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 3,
+          "slot": "lunch",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 58.5,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $58.5 and $87.5 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 3
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 3,
+          "slot": "lunch",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 87.5,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $58.5 and $87.5 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 3
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 3,
+          "slot": "dinner",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Indian"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For dinner on the third day, I’m looking for an Indian restaurant",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 3
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 3,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 3.7
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 3.7 and 4.1",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 3
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 3,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 4.1
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 3.7 and 4.1",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "breakfast",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Indian",
+            "Tea",
+            "Seafood"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For breakfast on day 4, I want a place serving Indian, Tea, and Seafood food",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "breakfast",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 3.5
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "with a rating between 3.5 and 3.7",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "breakfast",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 3.7
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "with a rating between 3.5 and 3.7",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "lunch",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Seafood"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For lunch on day 4, I’m looking for a Seafood restaurant",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "lunch",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 74.7,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $74.7 and $81.3 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "lunch",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 81.3,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $74.7 and $81.3 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 2.6
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For dinner on day 4, I want a spot rated between 2.6 and 3.0",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "dinner",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 3.0
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For dinner on day 4, I want a spot rated between 2.6 and 3.0",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "dinner",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 44.2,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing $44.2 to $63.8 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "dinner",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 63.8,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing $44.2 to $63.8 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "accommodation",
+          "attribute": "room_type"
+        },
+        "operator": "EQUALS",
+        "target": {
+          "value": "private_room"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "accommodation that is a private room",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "accommodation",
+          "attribute": "value"
+        },
+        "operator": "EQUALS",
+        "target": {
+          "value": "non_smoking"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "non-smoking",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "accommodation",
+          "attribute": "rating"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 2.8
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 2.8 and 3.2",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 4
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 4,
+          "slot": "accommodation",
+          "attribute": "rating"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 3.2
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "rated between 2.8 and 3.2",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 5
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 5,
+          "slot": "breakfast",
+          "attribute": "cuisine"
+        },
+        "operator": "SUPERSET_OF",
+        "target": {
+          "value": [
+            "Chinese"
+          ]
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "For breakfast on day 5, I want a Chinese restaurant",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 5
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 5,
+          "slot": "breakfast",
+          "attribute": "price"
+        },
+        "operator": "GTE",
+        "target": {
+          "value": 61.1,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $61.1 and $72.9 per person",
+        "confidence": 1.0
+      },
+      {
+        "kind": "FACTUAL",
+        "scope": {
+          "group": "6",
+          "traveler": "Benjamin",
+          "day": 5
+        },
+        "subject": {
+          "traveler": "Benjamin",
+          "day": 5,
+          "slot": "breakfast",
+          "attribute": "price"
+        },
+        "operator": "LTE",
+        "target": {
+          "value": 72.9,
+          "unit": "USD"
+        },
+        "source_refs": [
+          "event:6:1"
+        ],
+        "evidence_quote": "costing between $61.1 and $72.9 per person",
+        "confidence": 1.0
+      }
+    ],
+    "decisions": [],
+    "definitions": [],
+    "unresolved": [],
+    "parse_success": true
+  }
+}

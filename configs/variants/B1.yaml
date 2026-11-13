@@ -1,0 +1,3 @@
+description: Entire causally visible raw history. Reports overflow without truncation.
+memory:
+  backend: B1

@@ -1,0 +1,1666 @@
+[
+  {
+    "case_id": "freeform-calibration-handoff",
+    "domain": "scheduling",
+    "events": [
+      {
+        "event_id": "lab-log",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "ledger": {
+            "repair": {
+              "finish_min": 85
+            },
+            "closing_min": 180
+          }
+        },
+        "facts": [
+          {
+            "ref": "repair.finish",
+            "pointer": "/ledger/repair/finish_min",
+            "unit": "minute"
+          },
+          {
+            "ref": "lab.closing",
+            "pointer": "/ledger/closing_min",
+            "unit": "minute"
+          }
+        ]
+      },
+      {
+        "event_id": "calibration-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Book one calibration visit after the repair. Leave at least 20 minutes after the technician finishes, finish by the lab closing time, and do not put the visit in a wet room."
+      },
+      {
+        "event_id": "repair-delay",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "update": {
+            "finish_min": 115
+          }
+        },
+        "facts": [
+          {
+            "ref": "repair.finish",
+            "pointer": "/update/finish_min",
+            "unit": "minute"
+          }
+        ]
+      },
+      {
+        "event_id": "calibration-slots",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "slots": [
+            {
+              "option_id": "a71f2c",
+              "start_min": 130,
+              "end_min": 165,
+              "room_kind": "dry"
+            },
+            {
+              "option_id": "b23d8a",
+              "start_min": 140,
+              "end_min": 175,
+              "room_kind": "dry"
+            },
+            {
+              "option_id": "c98e41",
+              "start_min": 135,
+              "end_min": 190,
+              "room_kind": "wet"
+            }
+          ]
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "a71f2c",
+        "event_id": "calibration-slots",
+        "pointer": "/slots/0",
+        "properties": [
+          {
+            "ref": "chosen.start",
+            "pointer": "/slots/0/start_min",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/slots/0/end_min",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.room_kind",
+            "pointer": "/slots/0/room_kind"
+          }
+        ]
+      },
+      {
+        "option_id": "b23d8a",
+        "event_id": "calibration-slots",
+        "pointer": "/slots/1",
+        "properties": [
+          {
+            "ref": "chosen.start",
+            "pointer": "/slots/1/start_min",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/slots/1/end_min",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.room_kind",
+            "pointer": "/slots/1/room_kind"
+          }
+        ]
+      },
+      {
+        "option_id": "c98e41",
+        "event_id": "calibration-slots",
+        "pointer": "/slots/2",
+        "properties": [
+          {
+            "ref": "chosen.start",
+            "pointer": "/slots/2/start_min",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/slots/2/end_min",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.room_kind",
+            "pointer": "/slots/2/room_kind"
+          }
+        ]
+      }
+    ],
+    "query": "Reserve the calibration visit using the latest repair log.",
+    "format": "tables"
+  },
+  {
+    "case_id": "freeform-appeal-attendance",
+    "domain": "scheduling",
+    "events": [
+      {
+        "event_id": "attendance-poll",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "votes": {
+            "unanimous_remote": true
+          },
+          "chair": {
+            "adjourn_min": 1020
+          }
+        },
+        "facts": [
+          {
+            "ref": "attendees.remote_consent",
+            "pointer": "/votes/unanimous_remote"
+          },
+          {
+            "ref": "chair.adjourn",
+            "pointer": "/chair/adjourn_min",
+            "unit": "minute"
+          }
+        ]
+      },
+      {
+        "event_id": "hearing-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Schedule the appeal in a hearing-accessible slot and finish no later than the chair's adjournment time. A remote session is acceptable only if every attendee currently consents; an in-person session does not need remote consent."
+      },
+      {
+        "event_id": "consent-revocation",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "poll": [
+            {
+              "unanimous_remote": false
+            }
+          ]
+        },
+        "facts": [
+          {
+            "ref": "attendees.remote_consent",
+            "pointer": "/poll/0/unanimous_remote"
+          }
+        ]
+      },
+      {
+        "event_id": "hearing-calendar",
+        "step": 3,
+        "kind": "observation",
+        "content": [
+          {
+            "option_id": "d63ab4",
+            "mode": "remote",
+            "hearing_access": true,
+            "end_min": 1000
+          },
+          {
+            "option_id": "e19c72",
+            "mode": "in_person",
+            "hearing_access": true,
+            "end_min": 1015
+          },
+          {
+            "option_id": "f85d30",
+            "mode": "in_person",
+            "hearing_access": false,
+            "end_min": 990
+          }
+        ]
+      }
+    ],
+    "options": [
+      {
+        "option_id": "d63ab4",
+        "event_id": "hearing-calendar",
+        "pointer": "/0",
+        "properties": [
+          {
+            "ref": "chosen.mode",
+            "pointer": "/0/mode"
+          },
+          {
+            "ref": "chosen.access",
+            "pointer": "/0/hearing_access"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/0/end_min",
+            "unit": "minute"
+          }
+        ]
+      },
+      {
+        "option_id": "e19c72",
+        "event_id": "hearing-calendar",
+        "pointer": "/1",
+        "properties": [
+          {
+            "ref": "chosen.mode",
+            "pointer": "/1/mode"
+          },
+          {
+            "ref": "chosen.access",
+            "pointer": "/1/hearing_access"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/1/end_min",
+            "unit": "minute"
+          }
+        ]
+      },
+      {
+        "option_id": "f85d30",
+        "event_id": "hearing-calendar",
+        "pointer": "/2",
+        "properties": [
+          {
+            "ref": "chosen.mode",
+            "pointer": "/2/mode"
+          },
+          {
+            "ref": "chosen.access",
+            "pointer": "/2/hearing_access"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/2/end_min",
+            "unit": "minute"
+          }
+        ]
+      }
+    ],
+    "query": "Choose a session for the appeal now that the poll has changed.",
+    "format": "messages"
+  },
+  {
+    "case_id": "freeform-check-in-disagreement",
+    "domain": "scheduling",
+    "events": [
+      {
+        "event_id": "earlier-check-in",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "badge": {
+            "person": "Sera",
+            "floor": "1"
+          }
+        },
+        "facts": [
+          {
+            "ref": "sera.floor",
+            "pointer": "/badge/floor"
+          }
+        ]
+      },
+      {
+        "event_id": "handover-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Put the handover on the same floor as Sera's current check-in. Do not use a room while tests are running in it. If the location sources disagree, wait for a reconciled check-in instead of guessing."
+      },
+      {
+        "event_id": "badge-desk",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "check_in": {
+            "floor": "2"
+          }
+        },
+        "facts": [
+          {
+            "ref": "sera.floor",
+            "pointer": "/check_in/floor"
+          }
+        ]
+      },
+      {
+        "event_id": "reception-desk",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "desk": {
+            "current_floor": "3"
+          }
+        },
+        "facts": [
+          {
+            "ref": "sera.floor",
+            "pointer": "/desk/current_floor"
+          }
+        ]
+      },
+      {
+        "event_id": "handover-rooms",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "rooms": {
+            "north": {
+              "option_id": "17a9bf",
+              "floor": "2",
+              "tests_running": false
+            },
+            "south": {
+              "option_id": "28b0ce",
+              "floor": "3",
+              "tests_running": false
+            },
+            "west": {
+              "option_id": "39c1da",
+              "floor": "2",
+              "tests_running": true
+            }
+          }
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "17a9bf",
+        "event_id": "handover-rooms",
+        "pointer": "/rooms/north",
+        "properties": [
+          {
+            "ref": "chosen.floor",
+            "pointer": "/rooms/north/floor"
+          },
+          {
+            "ref": "chosen.tests",
+            "pointer": "/rooms/north/tests_running"
+          }
+        ]
+      },
+      {
+        "option_id": "28b0ce",
+        "event_id": "handover-rooms",
+        "pointer": "/rooms/south",
+        "properties": [
+          {
+            "ref": "chosen.floor",
+            "pointer": "/rooms/south/floor"
+          },
+          {
+            "ref": "chosen.tests",
+            "pointer": "/rooms/south/tests_running"
+          }
+        ]
+      },
+      {
+        "option_id": "39c1da",
+        "event_id": "handover-rooms",
+        "pointer": "/rooms/west",
+        "properties": [
+          {
+            "ref": "chosen.floor",
+            "pointer": "/rooms/west/floor"
+          },
+          {
+            "ref": "chosen.tests",
+            "pointer": "/rooms/west/tests_running"
+          }
+        ]
+      }
+    ],
+    "query": "Book the handover if the sources now support a room.",
+    "format": "json"
+  },
+  {
+    "case_id": "freeform-ward-bundle",
+    "domain": "procurement",
+    "events": [
+      {
+        "event_id": "ward-release",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "ward": {
+            "required_sets": 16
+          },
+          "finance": {
+            "released_eur": 350
+          }
+        },
+        "facts": [
+          {
+            "ref": "ward.required",
+            "pointer": "/ward/required_sets",
+            "unit": "set"
+          },
+          {
+            "ref": "finance.released",
+            "pointer": "/finance/released_eur",
+            "unit": "EUR"
+          }
+        ]
+      },
+      {
+        "event_id": "ward-order",
+        "step": 1,
+        "kind": "user",
+        "content": "Buy one complete sterile-set bundle for the ward. It must cover the current required number of sets, contain no latex, and cost no more than the released amount including freight. Do not combine bundles."
+      },
+      {
+        "event_id": "ward-census",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "census_revision": {
+            "sets_needed": 20
+          }
+        },
+        "facts": [
+          {
+            "ref": "ward.required",
+            "pointer": "/census_revision/sets_needed",
+            "unit": "set"
+          }
+        ]
+      },
+      {
+        "event_id": "bundle-quotes",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "response": {
+            "bundles": [
+              {
+                "option_id": "4a70e3",
+                "set_count": "18",
+                "contains_latex": false,
+                "landed_eur": "300.00"
+              },
+              {
+                "option_id": "5b81f4",
+                "set_count": "24",
+                "contains_latex": true,
+                "landed_eur": "348.00"
+              },
+              {
+                "option_id": "6c9205",
+                "set_count": "24",
+                "contains_latex": false,
+                "landed_eur": "345.00"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "4a70e3",
+        "event_id": "bundle-quotes",
+        "pointer": "/response/bundles/0",
+        "properties": [
+          {
+            "ref": "chosen.sets",
+            "pointer": "/response/bundles/0/set_count",
+            "unit": "set"
+          },
+          {
+            "ref": "chosen.latex",
+            "pointer": "/response/bundles/0/contains_latex"
+          },
+          {
+            "ref": "chosen.landed",
+            "pointer": "/response/bundles/0/landed_eur",
+            "unit": "EUR"
+          }
+        ]
+      },
+      {
+        "option_id": "5b81f4",
+        "event_id": "bundle-quotes",
+        "pointer": "/response/bundles/1",
+        "properties": [
+          {
+            "ref": "chosen.sets",
+            "pointer": "/response/bundles/1/set_count",
+            "unit": "set"
+          },
+          {
+            "ref": "chosen.latex",
+            "pointer": "/response/bundles/1/contains_latex"
+          },
+          {
+            "ref": "chosen.landed",
+            "pointer": "/response/bundles/1/landed_eur",
+            "unit": "EUR"
+          }
+        ]
+      },
+      {
+        "option_id": "6c9205",
+        "event_id": "bundle-quotes",
+        "pointer": "/response/bundles/2",
+        "properties": [
+          {
+            "ref": "chosen.sets",
+            "pointer": "/response/bundles/2/set_count",
+            "unit": "set"
+          },
+          {
+            "ref": "chosen.latex",
+            "pointer": "/response/bundles/2/contains_latex"
+          },
+          {
+            "ref": "chosen.landed",
+            "pointer": "/response/bundles/2/landed_eur",
+            "unit": "EUR"
+          }
+        ]
+      }
+    ],
+    "query": "Submit one of the quoted bundles for the revised ward order.",
+    "format": "messages"
+  },
+  {
+    "case_id": "freeform-certified-motor",
+    "domain": "procurement",
+    "events": [
+      {
+        "event_id": "controller-sheet",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "electrical": {
+            "voltage": 240
+          }
+        },
+        "facts": [
+          {
+            "ref": "controller.voltage",
+            "pointer": "/electrical/voltage",
+            "unit": "volt"
+          }
+        ]
+      },
+      {
+        "event_id": "motor-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Choose a new motor bundle at the controller's current voltage. The motor must be Zone 2 certified. If a bundle uses an adapter, the adapter must also have its own Zone 2 certification. Do not accept a used motor."
+      },
+      {
+        "event_id": "controller-rewire",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "controller": [
+            {
+              "voltage": 208
+            }
+          ]
+        },
+        "facts": [
+          {
+            "ref": "controller.voltage",
+            "pointer": "/controller/0/voltage",
+            "unit": "volt"
+          }
+        ]
+      },
+      {
+        "event_id": "motor-catalog",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "bundles": {
+            "direct": {
+              "option_id": "7da316",
+              "voltage": 208,
+              "new": true,
+              "motor_zone2": true,
+              "uses_adapter": false
+            },
+            "unrecorded": {
+              "option_id": "8eb427",
+              "voltage": 208,
+              "new": true,
+              "motor_zone2": true,
+              "uses_adapter": true
+            },
+            "rejected": {
+              "option_id": "9fc538",
+              "voltage": 208,
+              "new": true,
+              "motor_zone2": true,
+              "uses_adapter": true,
+              "adapter_zone2": false
+            },
+            "old-voltage": {
+              "option_id": "a0d649",
+              "voltage": 240,
+              "new": false,
+              "motor_zone2": true,
+              "uses_adapter": false
+            }
+          }
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "7da316",
+        "event_id": "motor-catalog",
+        "pointer": "/bundles/direct",
+        "properties": [
+          {
+            "ref": "chosen.voltage",
+            "pointer": "/bundles/direct/voltage",
+            "unit": "volt"
+          },
+          {
+            "ref": "chosen.new",
+            "pointer": "/bundles/direct/new"
+          },
+          {
+            "ref": "chosen.motor_cert",
+            "pointer": "/bundles/direct/motor_zone2"
+          },
+          {
+            "ref": "chosen.adapter",
+            "pointer": "/bundles/direct/uses_adapter"
+          }
+        ]
+      },
+      {
+        "option_id": "8eb427",
+        "event_id": "motor-catalog",
+        "pointer": "/bundles/unrecorded",
+        "properties": [
+          {
+            "ref": "chosen.voltage",
+            "pointer": "/bundles/unrecorded/voltage",
+            "unit": "volt"
+          },
+          {
+            "ref": "chosen.new",
+            "pointer": "/bundles/unrecorded/new"
+          },
+          {
+            "ref": "chosen.motor_cert",
+            "pointer": "/bundles/unrecorded/motor_zone2"
+          },
+          {
+            "ref": "chosen.adapter",
+            "pointer": "/bundles/unrecorded/uses_adapter"
+          }
+        ]
+      },
+      {
+        "option_id": "9fc538",
+        "event_id": "motor-catalog",
+        "pointer": "/bundles/rejected",
+        "properties": [
+          {
+            "ref": "chosen.voltage",
+            "pointer": "/bundles/rejected/voltage",
+            "unit": "volt"
+          },
+          {
+            "ref": "chosen.new",
+            "pointer": "/bundles/rejected/new"
+          },
+          {
+            "ref": "chosen.motor_cert",
+            "pointer": "/bundles/rejected/motor_zone2"
+          },
+          {
+            "ref": "chosen.adapter",
+            "pointer": "/bundles/rejected/uses_adapter"
+          },
+          {
+            "ref": "chosen.adapter_cert",
+            "pointer": "/bundles/rejected/adapter_zone2"
+          }
+        ]
+      },
+      {
+        "option_id": "a0d649",
+        "event_id": "motor-catalog",
+        "pointer": "/bundles/old-voltage",
+        "properties": [
+          {
+            "ref": "chosen.voltage",
+            "pointer": "/bundles/old-voltage/voltage",
+            "unit": "volt"
+          },
+          {
+            "ref": "chosen.new",
+            "pointer": "/bundles/old-voltage/new"
+          },
+          {
+            "ref": "chosen.motor_cert",
+            "pointer": "/bundles/old-voltage/motor_zone2"
+          },
+          {
+            "ref": "chosen.adapter",
+            "pointer": "/bundles/old-voltage/uses_adapter"
+          }
+        ]
+      }
+    ],
+    "query": "Order the compatible certified motor bundle.",
+    "format": "json"
+  },
+  {
+    "case_id": "freeform-license-approval",
+    "domain": "procurement",
+    "events": [
+      {
+        "event_id": "approval-sheet",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "approved_quote": {
+            "annual_usd": 900
+          },
+          "roster": {
+            "seats": 12
+          }
+        },
+        "facts": [
+          {
+            "ref": "renewal.quote",
+            "pointer": "/approved_quote/annual_usd",
+            "unit": "USD"
+          },
+          {
+            "ref": "roster.seats",
+            "pointer": "/roster/seats",
+            "unit": "seat"
+          }
+        ]
+      },
+      {
+        "event_id": "renewal-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Renew enough seats for the current roster, with automatic renewal turned off. Keep the annual charge at or below the 900 USD quote approved in the initial approval-sheet record; a later indicative quote does not raise that approved ceiling."
+      },
+      {
+        "event_id": "renewal-update",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "indicative_quote": {
+            "annual_usd": 1100
+          },
+          "roster": {
+            "seats": 14
+          }
+        },
+        "facts": [
+          {
+            "ref": "renewal.quote",
+            "pointer": "/indicative_quote/annual_usd",
+            "unit": "USD"
+          },
+          {
+            "ref": "roster.seats",
+            "pointer": "/roster/seats",
+            "unit": "seat"
+          }
+        ]
+      },
+      {
+        "event_id": "renewal-offers",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "offers_by_code": {
+            "R": {
+              "option_id": "b1e75a",
+              "seats": 14,
+              "annual_usd": 950,
+              "auto_renew": false
+            },
+            "S": {
+              "option_id": "c2f86b",
+              "seats": 14,
+              "annual_usd": 895,
+              "auto_renew": false
+            },
+            "T": {
+              "option_id": "d3097c",
+              "seats": 12,
+              "annual_usd": 850,
+              "auto_renew": false
+            },
+            "U": {
+              "option_id": "e41a8d",
+              "seats": 14,
+              "annual_usd": 880,
+              "auto_renew": true
+            }
+          }
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "b1e75a",
+        "event_id": "renewal-offers",
+        "pointer": "/offers_by_code/R",
+        "properties": [
+          {
+            "ref": "chosen.seats",
+            "pointer": "/offers_by_code/R/seats",
+            "unit": "seat"
+          },
+          {
+            "ref": "chosen.annual",
+            "pointer": "/offers_by_code/R/annual_usd",
+            "unit": "USD"
+          },
+          {
+            "ref": "chosen.auto",
+            "pointer": "/offers_by_code/R/auto_renew"
+          }
+        ]
+      },
+      {
+        "option_id": "c2f86b",
+        "event_id": "renewal-offers",
+        "pointer": "/offers_by_code/S",
+        "properties": [
+          {
+            "ref": "chosen.seats",
+            "pointer": "/offers_by_code/S/seats",
+            "unit": "seat"
+          },
+          {
+            "ref": "chosen.annual",
+            "pointer": "/offers_by_code/S/annual_usd",
+            "unit": "USD"
+          },
+          {
+            "ref": "chosen.auto",
+            "pointer": "/offers_by_code/S/auto_renew"
+          }
+        ]
+      },
+      {
+        "option_id": "d3097c",
+        "event_id": "renewal-offers",
+        "pointer": "/offers_by_code/T",
+        "properties": [
+          {
+            "ref": "chosen.seats",
+            "pointer": "/offers_by_code/T/seats",
+            "unit": "seat"
+          },
+          {
+            "ref": "chosen.annual",
+            "pointer": "/offers_by_code/T/annual_usd",
+            "unit": "USD"
+          },
+          {
+            "ref": "chosen.auto",
+            "pointer": "/offers_by_code/T/auto_renew"
+          }
+        ]
+      },
+      {
+        "option_id": "e41a8d",
+        "event_id": "renewal-offers",
+        "pointer": "/offers_by_code/U",
+        "properties": [
+          {
+            "ref": "chosen.seats",
+            "pointer": "/offers_by_code/U/seats",
+            "unit": "seat"
+          },
+          {
+            "ref": "chosen.annual",
+            "pointer": "/offers_by_code/U/annual_usd",
+            "unit": "USD"
+          },
+          {
+            "ref": "chosen.auto",
+            "pointer": "/offers_by_code/U/auto_renew"
+          }
+        ]
+      }
+    ],
+    "query": "Submit a renewal under the approved ceiling and current roster.",
+    "format": "tables"
+  },
+  {
+    "case_id": "freeform-rollback-mode",
+    "domain": "deployment",
+    "events": [
+      {
+        "event_id": "cr17-original",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "change": {
+            "id": "CR-17",
+            "approved_digest": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a"
+          }
+        },
+        "facts": [
+          {
+            "ref": "cr17.digest",
+            "pointer": "/change/approved_digest"
+          }
+        ]
+      },
+      {
+        "event_id": "rollback-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Roll back only to the digest currently approved by change record CR-17, with debug logging off. If you use a canary, send at most 5 percent of traffic. If you use a full rollout, its audit sink must be enabled."
+      },
+      {
+        "event_id": "cr17-amendment",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "amendment": [
+            {
+              "approved_digest": "sha256:2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b"
+            }
+          ]
+        },
+        "facts": [
+          {
+            "ref": "cr17.digest",
+            "pointer": "/amendment/0/approved_digest"
+          }
+        ]
+      },
+      {
+        "event_id": "rollback-candidates",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "candidates": [
+            {
+              "option_id": "f52b9e",
+              "digest": "sha256:1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a",
+              "rollout": "full",
+              "audit_sink": true,
+              "debug": false
+            },
+            {
+              "option_id": "063caf",
+              "digest": "sha256:2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+              "rollout": "canary",
+              "traffic_percent": 5,
+              "debug": false
+            },
+            {
+              "option_id": "174db0",
+              "digest": "sha256:2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+              "rollout": "canary",
+              "traffic_percent": 10,
+              "debug": false
+            },
+            {
+              "option_id": "285ec1",
+              "digest": "sha256:2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
+              "rollout": "full",
+              "audit_sink": false,
+              "debug": false
+            }
+          ]
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "f52b9e",
+        "event_id": "rollback-candidates",
+        "pointer": "/candidates/0",
+        "properties": [
+          {
+            "ref": "chosen.digest",
+            "pointer": "/candidates/0/digest"
+          },
+          {
+            "ref": "chosen.rollout",
+            "pointer": "/candidates/0/rollout"
+          },
+          {
+            "ref": "chosen.debug",
+            "pointer": "/candidates/0/debug"
+          },
+          {
+            "ref": "chosen.audit",
+            "pointer": "/candidates/0/audit_sink"
+          }
+        ]
+      },
+      {
+        "option_id": "063caf",
+        "event_id": "rollback-candidates",
+        "pointer": "/candidates/1",
+        "properties": [
+          {
+            "ref": "chosen.digest",
+            "pointer": "/candidates/1/digest"
+          },
+          {
+            "ref": "chosen.rollout",
+            "pointer": "/candidates/1/rollout"
+          },
+          {
+            "ref": "chosen.debug",
+            "pointer": "/candidates/1/debug"
+          },
+          {
+            "ref": "chosen.traffic",
+            "pointer": "/candidates/1/traffic_percent",
+            "unit": "percent"
+          }
+        ]
+      },
+      {
+        "option_id": "174db0",
+        "event_id": "rollback-candidates",
+        "pointer": "/candidates/2",
+        "properties": [
+          {
+            "ref": "chosen.digest",
+            "pointer": "/candidates/2/digest"
+          },
+          {
+            "ref": "chosen.rollout",
+            "pointer": "/candidates/2/rollout"
+          },
+          {
+            "ref": "chosen.debug",
+            "pointer": "/candidates/2/debug"
+          },
+          {
+            "ref": "chosen.traffic",
+            "pointer": "/candidates/2/traffic_percent",
+            "unit": "percent"
+          }
+        ]
+      },
+      {
+        "option_id": "285ec1",
+        "event_id": "rollback-candidates",
+        "pointer": "/candidates/3",
+        "properties": [
+          {
+            "ref": "chosen.digest",
+            "pointer": "/candidates/3/digest"
+          },
+          {
+            "ref": "chosen.rollout",
+            "pointer": "/candidates/3/rollout"
+          },
+          {
+            "ref": "chosen.debug",
+            "pointer": "/candidates/3/debug"
+          },
+          {
+            "ref": "chosen.audit",
+            "pointer": "/candidates/3/audit_sink"
+          }
+        ]
+      }
+    ],
+    "query": "Pick a rollback candidate under the amended CR-17 approval.",
+    "format": "json"
+  },
+  {
+    "case_id": "freeform-copy-freeze-window",
+    "domain": "deployment",
+    "events": [
+      {
+        "event_id": "release-timeline",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "copy_finish": 160,
+          "freeze_start": 240
+        },
+        "facts": [
+          {
+            "ref": "copy.finish",
+            "pointer": "/copy_finish",
+            "unit": "minute"
+          },
+          {
+            "ref": "freeze.start",
+            "pointer": "/freeze_start",
+            "unit": "minute"
+          }
+        ]
+      },
+      {
+        "event_id": "window-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Use one deployment window starting at least 15 minutes after the data copy finishes, and finish before or at the freeze start. An on-call engineer must be present unless that window is fully automated."
+      },
+      {
+        "event_id": "copy-delay",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "copy": {
+            "actual_finish": 210
+          }
+        },
+        "facts": [
+          {
+            "ref": "copy.finish",
+            "pointer": "/copy/actual_finish",
+            "unit": "minute"
+          }
+        ]
+      },
+      {
+        "event_id": "window-roster",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "window_choices": {
+            "early": {
+              "option_id": "396fd2",
+              "start": 220,
+              "end": 235,
+              "on_call": true,
+              "automated": false
+            },
+            "uncovered": {
+              "option_id": "4a70e4",
+              "start": 225,
+              "end": 240,
+              "on_call": false,
+              "automated": false
+            },
+            "late": {
+              "option_id": "5b81f5",
+              "start": 230,
+              "end": 245,
+              "on_call": false,
+              "automated": true
+            }
+          }
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "396fd2",
+        "event_id": "window-roster",
+        "pointer": "/window_choices/early",
+        "properties": [
+          {
+            "ref": "chosen.start",
+            "pointer": "/window_choices/early/start",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/window_choices/early/end",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.on_call",
+            "pointer": "/window_choices/early/on_call"
+          },
+          {
+            "ref": "chosen.automated",
+            "pointer": "/window_choices/early/automated"
+          }
+        ]
+      },
+      {
+        "option_id": "4a70e4",
+        "event_id": "window-roster",
+        "pointer": "/window_choices/uncovered",
+        "properties": [
+          {
+            "ref": "chosen.start",
+            "pointer": "/window_choices/uncovered/start",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/window_choices/uncovered/end",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.on_call",
+            "pointer": "/window_choices/uncovered/on_call"
+          },
+          {
+            "ref": "chosen.automated",
+            "pointer": "/window_choices/uncovered/automated"
+          }
+        ]
+      },
+      {
+        "option_id": "5b81f5",
+        "event_id": "window-roster",
+        "pointer": "/window_choices/late",
+        "properties": [
+          {
+            "ref": "chosen.start",
+            "pointer": "/window_choices/late/start",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.end",
+            "pointer": "/window_choices/late/end",
+            "unit": "minute"
+          },
+          {
+            "ref": "chosen.on_call",
+            "pointer": "/window_choices/late/on_call"
+          },
+          {
+            "ref": "chosen.automated",
+            "pointer": "/window_choices/late/automated"
+          }
+        ]
+      }
+    ],
+    "query": "Select a deployment window if one still meets every condition.",
+    "format": "messages"
+  },
+  {
+    "case_id": "freeform-hospital-dispatch",
+    "domain": "inventory",
+    "events": [
+      {
+        "event_id": "hospital-order",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "order": {
+            "units": 72,
+            "receipt_day": 54
+          }
+        },
+        "facts": [
+          {
+            "ref": "order.units",
+            "pointer": "/order/units",
+            "unit": "unit"
+          },
+          {
+            "ref": "receipt.day",
+            "pointer": "/order/receipt_day",
+            "unit": "day_index"
+          }
+        ]
+      },
+      {
+        "event_id": "dispatch-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Dispatch a single lot that covers the current hospital order using its free units after reservations. Its expiry day must be on or after the planned receipt day. If the lot needs a cold chain, use only a carrier with recorded cold-chain certification. Do not split the order."
+      },
+      {
+        "event_id": "hospital-amendment",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "revised": {
+            "units": 84
+          }
+        },
+        "facts": [
+          {
+            "ref": "order.units",
+            "pointer": "/revised/units",
+            "unit": "unit"
+          }
+        ]
+      },
+      {
+        "event_id": "dispatch-stock",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "stock": {
+            "lots": [
+              {
+                "option_id": "6c9206",
+                "free_units": 86,
+                "expiry_day": 55,
+                "cold_chain": false
+              },
+              {
+                "option_id": "7da317",
+                "free_units": 92,
+                "expiry_day": 56,
+                "cold_chain": true
+              },
+              {
+                "option_id": "8eb428",
+                "free_units": 90,
+                "expiry_day": 53,
+                "cold_chain": true,
+                "carrier_certified": true
+              },
+              {
+                "option_id": "9fc539",
+                "free_units": 82,
+                "expiry_day": 60,
+                "cold_chain": false
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "6c9206",
+        "event_id": "dispatch-stock",
+        "pointer": "/stock/lots/0",
+        "properties": [
+          {
+            "ref": "chosen.free",
+            "pointer": "/stock/lots/0/free_units",
+            "unit": "unit"
+          },
+          {
+            "ref": "chosen.expiry",
+            "pointer": "/stock/lots/0/expiry_day",
+            "unit": "day_index"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/stock/lots/0/cold_chain"
+          }
+        ]
+      },
+      {
+        "option_id": "7da317",
+        "event_id": "dispatch-stock",
+        "pointer": "/stock/lots/1",
+        "properties": [
+          {
+            "ref": "chosen.free",
+            "pointer": "/stock/lots/1/free_units",
+            "unit": "unit"
+          },
+          {
+            "ref": "chosen.expiry",
+            "pointer": "/stock/lots/1/expiry_day",
+            "unit": "day_index"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/stock/lots/1/cold_chain"
+          }
+        ]
+      },
+      {
+        "option_id": "8eb428",
+        "event_id": "dispatch-stock",
+        "pointer": "/stock/lots/2",
+        "properties": [
+          {
+            "ref": "chosen.free",
+            "pointer": "/stock/lots/2/free_units",
+            "unit": "unit"
+          },
+          {
+            "ref": "chosen.expiry",
+            "pointer": "/stock/lots/2/expiry_day",
+            "unit": "day_index"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/stock/lots/2/cold_chain"
+          },
+          {
+            "ref": "chosen.carrier_cert",
+            "pointer": "/stock/lots/2/carrier_certified"
+          }
+        ]
+      },
+      {
+        "option_id": "9fc539",
+        "event_id": "dispatch-stock",
+        "pointer": "/stock/lots/3",
+        "properties": [
+          {
+            "ref": "chosen.free",
+            "pointer": "/stock/lots/3/free_units",
+            "unit": "unit"
+          },
+          {
+            "ref": "chosen.expiry",
+            "pointer": "/stock/lots/3/expiry_day",
+            "unit": "day_index"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/stock/lots/3/cold_chain"
+          }
+        ]
+      }
+    ],
+    "query": "Dispatch one listed lot for the amended hospital order.",
+    "format": "tables"
+  },
+  {
+    "case_id": "freeform-return-quarantine",
+    "domain": "inventory",
+    "events": [
+      {
+        "event_id": "return-intake",
+        "step": 0,
+        "kind": "observation",
+        "content": {
+          "return": {
+            "product": "K-77",
+            "refrigerated": true,
+            "screening": "negative"
+          },
+          "qa": {
+            "released": true
+          }
+        },
+        "facts": [
+          {
+            "ref": "return.product",
+            "pointer": "/return/product"
+          },
+          {
+            "ref": "return.cold",
+            "pointer": "/return/refrigerated"
+          },
+          {
+            "ref": "screen.result",
+            "pointer": "/return/screening"
+          },
+          {
+            "ref": "qa.released",
+            "pointer": "/qa/released"
+          }
+        ]
+      },
+      {
+        "event_id": "return-routing-request",
+        "step": 1,
+        "kind": "user",
+        "content": "Put the returned lot in one empty bin assigned to its product. Until QA signs release, use a quarantine bin even if screening is negative; after release, use a released-stock bin. A refrigerated return needs a refrigerated bin."
+      },
+      {
+        "event_id": "qa-correction",
+        "step": 2,
+        "kind": "observation",
+        "content": {
+          "qa": {
+            "released": false
+          },
+          "note": "The earlier release flag was entered in error; QA has not signed release."
+        },
+        "facts": [
+          {
+            "ref": "qa.released",
+            "pointer": "/qa/released"
+          }
+        ]
+      },
+      {
+        "event_id": "bin-map",
+        "step": 3,
+        "kind": "observation",
+        "content": {
+          "bins": {
+            "q-cold": {
+              "option_id": "a0d64a",
+              "product": "K-77",
+              "empty": true,
+              "zone": "quarantine",
+              "refrigerated": true
+            },
+            "r-cold": {
+              "option_id": "b1e75b",
+              "product": "K-77",
+              "empty": true,
+              "zone": "released",
+              "refrigerated": true
+            },
+            "q-warm": {
+              "option_id": "c2f86c",
+              "product": "K-77",
+              "empty": true,
+              "zone": "quarantine",
+              "refrigerated": false
+            },
+            "q-used": {
+              "option_id": "d3097d",
+              "product": "J-11",
+              "empty": false,
+              "zone": "quarantine",
+              "refrigerated": true
+            }
+          }
+        }
+      }
+    ],
+    "options": [
+      {
+        "option_id": "a0d64a",
+        "event_id": "bin-map",
+        "pointer": "/bins/q-cold",
+        "properties": [
+          {
+            "ref": "chosen.product",
+            "pointer": "/bins/q-cold/product"
+          },
+          {
+            "ref": "chosen.empty",
+            "pointer": "/bins/q-cold/empty"
+          },
+          {
+            "ref": "chosen.zone",
+            "pointer": "/bins/q-cold/zone"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/bins/q-cold/refrigerated"
+          }
+        ]
+      },
+      {
+        "option_id": "b1e75b",
+        "event_id": "bin-map",
+        "pointer": "/bins/r-cold",
+        "properties": [
+          {
+            "ref": "chosen.product",
+            "pointer": "/bins/r-cold/product"
+          },
+          {
+            "ref": "chosen.empty",
+            "pointer": "/bins/r-cold/empty"
+          },
+          {
+            "ref": "chosen.zone",
+            "pointer": "/bins/r-cold/zone"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/bins/r-cold/refrigerated"
+          }
+        ]
+      },
+      {
+        "option_id": "c2f86c",
+        "event_id": "bin-map",
+        "pointer": "/bins/q-warm",
+        "properties": [
+          {
+            "ref": "chosen.product",
+            "pointer": "/bins/q-warm/product"
+          },
+          {
+            "ref": "chosen.empty",
+            "pointer": "/bins/q-warm/empty"
+          },
+          {
+            "ref": "chosen.zone",
+            "pointer": "/bins/q-warm/zone"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/bins/q-warm/refrigerated"
+          }
+        ]
+      },
+      {
+        "option_id": "d3097d",
+        "event_id": "bin-map",
+        "pointer": "/bins/q-used",
+        "properties": [
+          {
+            "ref": "chosen.product",
+            "pointer": "/bins/q-used/product"
+          },
+          {
+            "ref": "chosen.empty",
+            "pointer": "/bins/q-used/empty"
+          },
+          {
+            "ref": "chosen.zone",
+            "pointer": "/bins/q-used/zone"
+          },
+          {
+            "ref": "chosen.cold",
+            "pointer": "/bins/q-used/refrigerated"
+          }
+        ]
+      }
+    ],
+    "query": "Route the returned lot using the corrected QA state.",
+    "format": "messages"
+  }
+]

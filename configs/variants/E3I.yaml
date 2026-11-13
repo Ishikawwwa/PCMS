@@ -1,0 +1,13 @@
+experiment:
+  id: inherited_binding_frontier_development
+  partition: smoke
+  primary_contrast: [E0, E3I]
+  candidate: E3I
+  declared_inheritance_contract: true
+  final_holdout_frozen: false
+agent:
+  max_completion_tokens: 16384
+memory:
+  backend: E3I
+  read_schedule: session_start
+  recovery_max_attempts: 2

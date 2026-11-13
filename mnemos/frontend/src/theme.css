@@ -1,0 +1,6 @@
+/* Keep legacy functional controls, but let the supplied HTML own appearance.
+   Layer ordering prevents older, more-specific selectors from overriding it. */
+@import './style.css' layer(legacy);
+@import './reference.css';
+@import './reference-layout.css';
+@import './glass.css';

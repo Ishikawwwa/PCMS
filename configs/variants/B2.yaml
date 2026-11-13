@@ -1,0 +1,4 @@
+description: BM25 retrieval over allowed raw event chunks under the shared memory budget.
+memory:
+  backend: B2
+  top_k: 8

@@ -1,0 +1,3 @@
+description: No persisted memory; lower-bound control.
+memory:
+  backend: B0

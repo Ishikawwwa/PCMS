@@ -1,0 +1,11 @@
+experiment:
+  id: materialized_frontier_development
+  partition: smoke
+  primary_contrast: [E0, E3F]
+  candidate: E3F
+  final_holdout_frozen: false
+agent:
+  max_completion_tokens: 16384
+memory:
+  backend: E3F
+  read_schedule: session_start

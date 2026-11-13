@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concept Memory Lab</title>
+  <link rel="stylesheet" href="/lab.css?v=3">
+  <script defer src="/lab.js?v=4"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><h1>Concept Memory Lab</h1></div>
+    <div class="model"><span class="status-dot"></span>Polza <span class="divider"></span><code>qwen/qwen3.6-27b</code></div>
+  </header>
+
+  <main class="workbench">
+    <aside class="run-panel">
+      <div class="panel-heading"><h2>Runs</h2><button id="new-run" class="primary">＋ New run</button></div>
+      <nav id="run-list" aria-label="Experiment runs"></nav>
+    </aside>
+
+    <section class="workspace" aria-label="Selected experiment">
+      <section class="run-head">
+        <div class="run-identity"><h2 id="run-title">Select a run</h2><span class="pill" id="run-status">Ready</span></div>
+        <div id="run-summary" class="subtle">Inspect an existing run or launch a paused worker.</div>
+        <div id="run-eta" class="run-eta" hidden></div>
+        <div id="control-bar" class="control-bar" hidden>
+          <button id="resume" class="primary">▶ Resume</button>
+          <button id="pause">Ⅱ Pause</button>
+          <button id="step">↦ Step once</button>
+          <div class="breakpoint">
+            <select id="breakpoint" aria-label="Breakpoint">
+              <option value="model">Model request</option>
+              <option value="memory">Memory commit</option>
+              <option value="retrieval">Context packing</option>
+              <option value="tool" data-paired>Tool action</option>
+              <option value="score">Scoring</option>
+              <option value="arm" data-paired>Comparison arm</option>
+            </select>
+            <button id="run-to">Run to</button>
+          </div>
+          <button id="stop" class="stop">■ Stop</button>
+          <button id="terminate" class="quiet">Force stop</button>
+        </div>
+      </section>
+
+      <div id="notice" role="status" hidden></div>
+      <div class="tabs" aria-label="Run views">
+        <button id="timeline-tab" class="tab selected" aria-pressed="true">Timeline</button>
+        <button id="results-tab" class="tab" aria-pressed="false">Results</button>
+        <button id="files-tab" class="tab" aria-pressed="false">Artifacts</button>
+        <button id="manifest-tab" class="tab" aria-pressed="false">Run settings</button>
+        <div id="metrics" class="metrics" aria-live="off"></div>
+      </div>
+
+      <section id="results" class="detail-scroll" aria-label="Run results" hidden></section>
+
+      <section id="timeline" class="split" aria-label="Timeline">
+        <div class="list-pane">
+          <div class="list-tools">
+            <input id="search" type="search" aria-label="Filter timeline" placeholder="Filter events…">
+            <select id="kind" aria-label="Event type">
+              <option value="">All events</option>
+              <option value="checkpoint">Checkpoints</option>
+              <option value="prompt">Prompts</option>
+              <option value="response">Model outputs</option>
+              <option value="evidence">Evidence</option>
+              <option value="memory">Memory writes</option>
+              <option value="retrieval">Retrieval</option>
+              <option value="action">Actions</option>
+              <option value="observation">Observations</option>
+              <option value="state">MAGE state</option>
+              <option value="usage">Usage</option>
+              <option value="transport">Transport</option>
+              <option value="score">Scores</option>
+              <option value="error">Errors</option>
+              <option value="control">Control</option>
+              <option value="run">Run lifecycle</option>
+            </select>
+          </div>
+          <div class="list-meta"><span id="event-count">0 events</span><label><input id="follow" type="checkbox" checked> Follow live</label></div>
+          <div id="events" class="scroll-list" aria-label="Events"></div>
+        </div>
+        <article class="inspector" aria-label="Event inspector">
+          <div class="inspector-head"><h3 id="detail-title">Event inspector</h3><div><button id="raw" class="quiet" hidden>Raw JSON</button><button id="copy-event" hidden>Copy</button></div></div>
+          <div id="detail" class="detail-scroll empty">Select an event to inspect its full contents.</div>
+        </article>
+      </section>
+
+      <section id="files" class="split" aria-label="Run artifacts" hidden>
+        <div class="list-pane"><div class="list-meta">Recorded files</div><div id="file-list" class="scroll-list"></div></div>
+        <article class="inspector">
+          <div class="inspector-head"><h3 id="file-title">Artifact inspector</h3><div><button id="older" hidden>Older</button><button id="latest" hidden>Latest</button><button id="copy-file" hidden>Copy</button></div></div>
+          <div id="file-detail" class="detail-scroll empty">Select an artifact to inspect its contents.</div>
+        </article>
+      </section>
+
+      <section id="manifest" class="detail-scroll" aria-label="Run settings" hidden></section>
+    </section>
+  </main>
+
+  <dialog id="setup">
+    <form id="launch-form">
+      <div class="dialog-head"><h2>New experiment</h2><button id="close-setup" type="button" class="quiet" aria-label="Close">✕</button></div>
+      <label class="field">Experiment<select name="experiment" id="experiment"><option value="shopping">Task 24 · Shopping retrieval</option><option value="travel">Travel · Confirmation and revision</option><option value="paired">Travel · MAGE vs. standalone PCMS</option><option value="benchmark">Travel · Full benchmark</option></select></label>
+      <p id="experiment-description" class="subtle"></p>
+      <label class="field">Memory token ceiling<input type="number" name="memory_tokens" min="1" max="4096" value="192" required></label>
+      <fieldset id="paired-fields" hidden>
+        <div id="group-fields">
+          <label class="field">Development group<select name="group" id="groups"></select></label>
+          <label class="field">Traveler limit <span class="subtle">Blank for full group</span><input type="number" name="turns" min="1" max="20" value="2"></label>
+        </div>
+        <label id="worker-field" class="field" hidden>Parallel groups<input type="number" name="workers" min="1" max="16" value="8"></label>
+        <label id="pcms-only-field" class="check" hidden><input type="checkbox" name="pcms_only" checked> Run PCMS only and show the published MAGE reference</label>
+        <label class="field">Action limit per traveler<input type="number" name="max_steps" min="1" max="100" value="40"></label>
+        <label class="check"><input type="checkbox" name="thinking" checked> Enable actor reasoning in both arms</label>
+      </fieldset>
+      <p class="subtle">The worker starts paused before any model request. Resume and Step can incur Polza charges.</p>
+      <p id="launch-error" class="error" role="alert" hidden></p>
+      <div class="dialog-actions"><button id="cancel-setup" type="button">Cancel</button><button class="primary" id="launch" type="submit">Start paused</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

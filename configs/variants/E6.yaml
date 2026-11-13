@@ -1,0 +1,6 @@
+description: E5 plus bounded glossary and alias chains with cycle detection.
+memory:
+  backend: E6
+  compression_mode: protected
+  max_glossary_hops: 4
+  glossary_step_limit: 16

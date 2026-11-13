@@ -1,0 +1,4 @@
+description: Deliberately lossy original-policy control; evicted records leave the retrieval index but remain in the audit archive.
+memory:
+  backend: E0
+  compression_mode: drop

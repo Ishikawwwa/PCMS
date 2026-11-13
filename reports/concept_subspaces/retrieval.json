@@ -1,0 +1,1134 @@
+{
+  "kind": "pre-annotated offline retrieval diagnostic",
+  "model_calls": 0,
+  "shopping_source": "https://arxiv.org/pdf/2606.06090v1#page=15",
+  "trials": [
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces",
+      "token_limit": 48,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": true,
+      "tokens": 44,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces+table",
+      "token_limit": 48,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": true,
+      "tokens": 44,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces+table-priority",
+      "token_limit": 48,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": true,
+      "tokens": 44,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "flat-table",
+      "token_limit": 48,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 44,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces",
+      "token_limit": 96,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3",
+        "p2"
+      ],
+      "table_anchor": true,
+      "tokens": 93,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\n[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces+table",
+      "token_limit": 96,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3",
+        "p2"
+      ],
+      "table_anchor": true,
+      "tokens": 93,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\n[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces+table-priority",
+      "token_limit": 96,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": true,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "flat-table",
+      "token_limit": 96,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces",
+      "token_limit": 192,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3",
+        "p2"
+      ],
+      "table_anchor": true,
+      "tokens": 93,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\n[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces+table",
+      "token_limit": 192,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3",
+        "p2"
+      ],
+      "table_anchor": true,
+      "tokens": 128,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\n[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "subspaces+table-priority",
+      "token_limit": 192,
+      "initial_ids": [
+        "p3",
+        "p2"
+      ],
+      "delivered_ids": [
+        "p3",
+        "p2"
+      ],
+      "table_anchor": true,
+      "tokens": 128,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)\n[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-slot-resolved",
+      "mode": "flat-table",
+      "token_limit": 192,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces",
+      "token_limit": 48,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p2"
+      ],
+      "table_anchor": true,
+      "tokens": 48,
+      "context": "[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces+table",
+      "token_limit": 48,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p2"
+      ],
+      "table_anchor": true,
+      "tokens": 48,
+      "context": "[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces+table-priority",
+      "token_limit": 48,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": true,
+      "tokens": 44,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "flat-table",
+      "token_limit": 48,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 44,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces",
+      "token_limit": 96,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "table_anchor": true,
+      "tokens": 85,
+      "context": "[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)\n[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces+table",
+      "token_limit": 96,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "table_anchor": true,
+      "tokens": 85,
+      "context": "[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)\n[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces+table-priority",
+      "token_limit": 96,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": true,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "flat-table",
+      "token_limit": 96,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces",
+      "token_limit": 192,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "table_anchor": true,
+      "tokens": 85,
+      "context": "[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)\n[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces+table",
+      "token_limit": 192,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p2",
+        "mermaid",
+        "p3"
+      ],
+      "table_anchor": true,
+      "tokens": 165,
+      "context": "[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)\n[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)\n[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "subspaces+table-priority",
+      "token_limit": 192,
+      "initial_ids": [
+        "p2",
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "p3",
+        "p2",
+        "mermaid"
+      ],
+      "table_anchor": true,
+      "tokens": 165,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)\n[confirmed] Product 2 purchased: Betty Crocker ready-to-serve cream cheese frosting, 8 pack (B003GQP06O), $34.27. (source: paper:m24)\n[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-missed-predecessor",
+      "mode": "flat-table",
+      "token_limit": 192,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces",
+      "token_limit": 48,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces+table",
+      "token_limit": 48,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces+table-priority",
+      "token_limit": 48,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "flat-table",
+      "token_limit": 48,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 44,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces",
+      "token_limit": 96,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces+table",
+      "token_limit": 96,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces+table-priority",
+      "token_limit": 96,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "flat-table",
+      "token_limit": 96,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces",
+      "token_limit": 192,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces+table",
+      "token_limit": 192,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "subspaces+table-priority",
+      "token_limit": 192,
+      "initial_ids": [
+        "mermaid"
+      ],
+      "delivered_ids": [
+        "mermaid"
+      ],
+      "table_anchor": false,
+      "tokens": 36,
+      "context": "[considered] Mermaid cake cup (B084JBT37C), $6.99, was considered. (source: paper:sm2)",
+      "missing_required_ids": [
+        "p3"
+      ],
+      "expected_total_present": false,
+      "complete_evidence": false
+    },
+    {
+      "case": "shopping-no-confirmed-anchor",
+      "mode": "flat-table",
+      "token_limit": 192,
+      "initial_ids": [],
+      "delivered_ids": [
+        "p3"
+      ],
+      "table_anchor": false,
+      "tokens": 79,
+      "context": "[confirmed] Product 3 purchased: AmeriColor Tulip Red airbrush food color (B071S91WRZ), $16.00. (source: paper:m31)\nSpent $65.26. Remaining $34.74. (sources: paper:m0, paper:m24, paper:m31)",
+      "missing_required_ids": [],
+      "expected_total_present": true,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces",
+      "token_limit": 48,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget80"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces+table",
+      "token_limit": 48,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget80"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces+table-priority",
+      "token_limit": 48,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget80"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "flat-table",
+      "token_limit": 48,
+      "initial_ids": [],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": false,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget80"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces",
+      "token_limit": 96,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget80"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces+table",
+      "token_limit": 96,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget80"
+      ],
+      "table_anchor": true,
+      "tokens": 61,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $80 per person. (source: brief:travel2)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces+table-priority",
+      "token_limit": 96,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget80"
+      ],
+      "table_anchor": true,
+      "tokens": 61,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $80 per person. (source: brief:travel2)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "flat-table",
+      "token_limit": 96,
+      "initial_ids": [],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget80"
+      ],
+      "table_anchor": false,
+      "tokens": 61,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $80 per person. (source: brief:travel2)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces",
+      "token_limit": 192,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget80"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces+table",
+      "token_limit": 192,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget80"
+      ],
+      "table_anchor": true,
+      "tokens": 61,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $80 per person. (source: brief:travel2)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "subspaces+table-priority",
+      "token_limit": 192,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget80"
+      ],
+      "table_anchor": true,
+      "tokens": 61,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $80 per person. (source: brief:travel2)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-before-confirmation",
+      "mode": "flat-table",
+      "token_limit": 192,
+      "initial_ids": [],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget80"
+      ],
+      "table_anchor": false,
+      "tokens": 61,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $80 per person. (source: brief:travel2)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces",
+      "token_limit": 48,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget100"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces+table",
+      "token_limit": 48,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget100"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces+table-priority",
+      "token_limit": 48,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget100"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "flat-table",
+      "token_limit": 48,
+      "initial_ids": [],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": false,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget100"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces",
+      "token_limit": 96,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget100"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces+table",
+      "token_limit": 96,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget100"
+      ],
+      "table_anchor": true,
+      "tokens": 62,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $100 per person. (source: brief:travel4)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces+table-priority",
+      "token_limit": 96,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget100"
+      ],
+      "table_anchor": true,
+      "tokens": 62,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $100 per person. (source: brief:travel4)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "flat-table",
+      "token_limit": 96,
+      "initial_ids": [],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget100"
+      ],
+      "table_anchor": false,
+      "tokens": 62,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $100 per person. (source: brief:travel4)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces",
+      "token_limit": 192,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access"
+      ],
+      "table_anchor": true,
+      "tokens": 38,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)",
+      "missing_required_ids": [
+        "budget100"
+      ],
+      "expected_total_present": null,
+      "complete_evidence": false
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces+table",
+      "token_limit": 192,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget100"
+      ],
+      "table_anchor": true,
+      "tokens": 62,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $100 per person. (source: brief:travel4)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "subspaces+table-priority",
+      "token_limit": 192,
+      "initial_ids": [
+        "destination",
+        "access"
+      ],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget100"
+      ],
+      "table_anchor": true,
+      "tokens": 62,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $100 per person. (source: brief:travel4)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    },
+    {
+      "case": "travel-after-confirmation",
+      "mode": "flat-table",
+      "token_limit": 192,
+      "initial_ids": [],
+      "delivered_ids": [
+        "destination",
+        "access",
+        "budget100"
+      ],
+      "table_anchor": false,
+      "tokens": 62,
+      "context": "[confirmed] The Day 2 destination is Rockford. (source: brief:travel1)\n[confirmed] Eric requires step-free transport. (source: brief:travel1)\n[confirmed] Emma's transport limit is $100 per person. (source: brief:travel4)",
+      "missing_required_ids": [],
+      "expected_total_present": null,
+      "complete_evidence": true
+    }
+  ],
+  "tokenizer_sha256": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42"
+}

@@ -1,0 +1,4 @@
+description: E0 plus typed exact constraint and decision records. No dependency closure.
+memory:
+  backend: E1
+  compression_mode: merge

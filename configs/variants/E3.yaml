@@ -1,0 +1,4 @@
+description: E2 plus protected binding state. Required-state overflow fails explicitly and provides labeled batches.
+memory:
+  backend: E3
+  compression_mode: protected

@@ -1,0 +1,4 @@
+description: E1 plus complete dependency closure from explicit binding references.
+memory:
+  backend: E2
+  compression_mode: merge

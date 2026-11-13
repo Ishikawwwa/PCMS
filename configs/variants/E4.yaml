@@ -1,0 +1,4 @@
+description: E3 plus deterministic reference, evidence, consistency, and submission checks. Semantic extraction remains unverified.
+memory:
+  backend: E4
+  compression_mode: protected

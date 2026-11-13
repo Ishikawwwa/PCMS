@@ -1,0 +1,4 @@
+description: Factorized v0 lists and outcomes control with one-pass glossary. Use E0_original for bounded iterative glossary lookup. Deterministic compaction replaces model-written summaries.
+memory:
+  backend: E0
+  compression_mode: merge

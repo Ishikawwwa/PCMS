@@ -1,0 +1,20 @@
+{
+  "source": "Mnemos_Concept_Forge.html",
+  "source_sha256": "07880cc3b61bf91295caa3b8414e6da264adbe368e3c277d716b8afdb374643b",
+  "verbatim_functions": {
+    "rotate": "fd6266cc163ef619936f035475502dd99315c6c03e6d091fc989aeb1e142848b",
+    "line": "4ebbf6db0e14fa66e2a787d07521386b54694ac59d8bb438ed20f28fd42fe325",
+    "dot2": "122e34ae1a2ea8a22248badfa7e4cb0e43da35b3bbfb4beb75c47953ce43e882",
+    "glow": "dbb61b47de9510b5035bfba61688d416ae15210590f7bed27784df6d5ddfcf47",
+    "label": "c99bbfe5730fcd8dc286f8b5c149d58dbbcc4c54087a27e7f991ecf15ceecabc",
+    "hull": "1c6916f7ef93c3b628439e89b090c9026520f4a1ac7b3df2823144347755565b",
+    "drawHull": "7113a806de9703829644ae54aff41c3a727c63773e4f926d071b94e8572ef0dc"
+  },
+  "visual_modifications": [
+    "Semantic node core uses a bounded 4–7px Canvas shadow for visible bloom. Trace dots, source glow gradient, links, labels and background unchanged.",
+    "Unified negative-Z camera convention for perspective size, far-to-near paint order, hit depth, and Euclidean label distance."
+  ],
+  "integration": "Live graph data supplied through wrapper; React schedules animation.",
+  "source_paint_sha256": "56c50d925c451ccacff98fe1a2e6bf8a134c367bb95aae341658c79b3a408c9e",
+  "source_proj_sha256": "7453c70bd1293f2af95a12386e17dd3dd7dd65e8dbf2dfb599cc225887ab8a53"
+}

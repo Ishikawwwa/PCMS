@@ -1,0 +1,1326 @@
+{
+  "schema_version": "freeform-transfer-offline-annotations-v1",
+  "disclosure": {
+    "split": "development",
+    "authorship": "Ten distinct synthetic workflows authored after inspecting the existing structured transfer fixture format, portable memory code, and generalization contract.",
+    "independence_limit": "Authored by a delegated agent in this development turn, not a blind external author or an unseen test source. No held-out generalization claim is justified.",
+    "runtime_boundary": "Runtime inputs are freeform_development.json only. This annotations file is scorer-only and must be opened only after a response is committed; no labels or expected identities enter writer, planner, repair or retrieval prompts.",
+    "data_sources": "Entirely invented local synthetic observations and user instructions; no benchmark records, model calls, credentials or network access.",
+    "logic": "Three-valued atom comparisons; NOT preserves unknown; ALL is false if any child false; ANY is true if any child true; IF uses selected branch when condition known, otherwise returns the common branch verdict only when both branches agree, else unknown. Missing or conflicting latest evidence is unknown; explicit snapshot targets retain the requested version. Numeric decimal text is parsed exactly; no unit conversion is inferred.",
+    "abstention": "Only fully satisfied options are admissible. Abstention is required when none can be verified, separately annotated as infeasible (all violate) or unverified (at least one option remains unknown)."
+  },
+  "cases": [
+    {
+      "case_id": "freeform-calibration-handoff",
+      "semantic_predicates": [
+        {
+          "predicate_id": "repair-buffer",
+          "source": {
+            "event_id": "calibration-request",
+            "span": {
+              "start": 45,
+              "end": 100
+            },
+            "quote": "Leave at least 20 minutes after the technician finishes"
+          },
+          "meaning": "The start is at least the latest repair finish plus 20 minutes.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.start"
+            },
+            "operator": "GTE",
+            "target": {
+              "ref": "repair.finish",
+              "binding_mode": "LIVE",
+              "offset": 20
+            },
+            "unit": "minute"
+          }
+        },
+        {
+          "predicate_id": "closing",
+          "source": {
+            "event_id": "calibration-request",
+            "span": {
+              "start": 102,
+              "end": 132
+            },
+            "quote": "finish by the lab closing time"
+          },
+          "meaning": "The visit ends at or before closing.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.end"
+            },
+            "operator": "LTE",
+            "target": {
+              "ref": "lab.closing",
+              "binding_mode": "LIVE"
+            },
+            "unit": "minute"
+          }
+        },
+        {
+          "predicate_id": "dry-room",
+          "source": {
+            "event_id": "calibration-request",
+            "span": {
+              "start": 138,
+              "end": 172
+            },
+            "quote": "do not put the visit in a wet room"
+          },
+          "meaning": "A wet room is forbidden.",
+          "expression": {
+            "not": {
+              "subject": {
+                "ref": "chosen.room_kind"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": "wet"
+              }
+            }
+          }
+        }
+      ],
+      "expected_options": {
+        "a71f2c": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "repair-buffer": "VIOLATED",
+            "closing": "SATISFIED",
+            "dry-room": "SATISFIED"
+          },
+          "reason": "Starts 15, rather than 20, minutes after the revised repair finish."
+        },
+        "b23d8a": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "repair-buffer": "SATISFIED",
+            "closing": "SATISFIED",
+            "dry-room": "SATISFIED"
+          },
+          "reason": "Starts 25 minutes after repair, ends before closing, and uses a dry room."
+        },
+        "c98e41": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "repair-buffer": "SATISFIED",
+            "closing": "VIOLATED",
+            "dry-room": "VIOLATED"
+          },
+          "reason": "Ends after closing and uses a wet room."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "b23d8a"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": []
+    },
+    {
+      "case_id": "freeform-appeal-attendance",
+      "semantic_predicates": [
+        {
+          "predicate_id": "hearing-access",
+          "source": {
+            "event_id": "hearing-request",
+            "span": {
+              "start": 20,
+              "end": 48
+            },
+            "quote": "in a hearing-accessible slot"
+          },
+          "meaning": "The offered slot explicitly supports hearing access.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.access"
+            },
+            "operator": "EQ",
+            "target": {
+              "value": true
+            }
+          }
+        },
+        {
+          "predicate_id": "adjourn",
+          "source": {
+            "event_id": "hearing-request",
+            "span": {
+              "start": 53,
+              "end": 102
+            },
+            "quote": "finish no later than the chair's adjournment time"
+          },
+          "meaning": "Use the observed chair deadline.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.end"
+            },
+            "operator": "LTE",
+            "target": {
+              "ref": "chair.adjourn",
+              "binding_mode": "LIVE"
+            },
+            "unit": "minute"
+          }
+        },
+        {
+          "predicate_id": "remote-consent",
+          "source": {
+            "event_id": "hearing-request",
+            "span": {
+              "start": 104,
+              "end": 228
+            },
+            "quote": "A remote session is acceptable only if every attendee currently consents; an in-person session does not need remote consent."
+          },
+          "meaning": "Remote implies current unanimous consent. The in-person branch is unconstrained by that consent.",
+          "expression": {
+            "if": {
+              "subject": {
+                "ref": "chosen.mode"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": "remote"
+              }
+            },
+            "then": {
+              "subject": {
+                "ref": "attendees.remote_consent"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "else": {
+              "literal": true
+            }
+          }
+        }
+      ],
+      "expected_options": {
+        "d63ab4": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "hearing-access": "SATISFIED",
+            "adjourn": "SATISFIED",
+            "remote-consent": "VIOLATED"
+          },
+          "reason": "Current unanimous remote consent is false."
+        },
+        "e19c72": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "hearing-access": "SATISFIED",
+            "adjourn": "SATISFIED",
+            "remote-consent": "SATISFIED"
+          },
+          "reason": "Accessible in-person slot ends before adjournment."
+        },
+        "f85d30": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "hearing-access": "VIOLATED",
+            "adjourn": "SATISFIED",
+            "remote-consent": "SATISFIED"
+          },
+          "reason": "The slot lacks hearing access."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "e19c72"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": []
+    },
+    {
+      "case_id": "freeform-check-in-disagreement",
+      "semantic_predicates": [
+        {
+          "predicate_id": "same-floor",
+          "source": {
+            "event_id": "handover-request",
+            "span": {
+              "start": 17,
+              "end": 61
+            },
+            "quote": "on the same floor as Sera's current check-in"
+          },
+          "meaning": "The latest floor must be uniquely supported.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.floor"
+            },
+            "operator": "EQ",
+            "target": {
+              "ref": "sera.floor",
+              "binding_mode": "LIVE"
+            }
+          }
+        },
+        {
+          "predicate_id": "no-running-tests",
+          "source": {
+            "event_id": "handover-request",
+            "span": {
+              "start": 63,
+              "end": 110
+            },
+            "quote": "Do not use a room while tests are running in it"
+          },
+          "meaning": "Running tests rule out the room.",
+          "expression": {
+            "not": {
+              "subject": {
+                "ref": "chosen.tests"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            }
+          }
+        }
+      ],
+      "expected_options": {
+        "17a9bf": {
+          "status": "UNVERIFIED",
+          "predicate_statuses": {
+            "same-floor": "UNVERIFIED",
+            "no-running-tests": "SATISFIED"
+          },
+          "reason": "The floor sources disagree at the same causal step; floor 2 is not established."
+        },
+        "28b0ce": {
+          "status": "UNVERIFIED",
+          "predicate_statuses": {
+            "same-floor": "UNVERIFIED",
+            "no-running-tests": "SATISFIED"
+          },
+          "reason": "The floor sources disagree at the same causal step; floor 3 is not established."
+        },
+        "39c1da": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "same-floor": "UNVERIFIED",
+            "no-running-tests": "VIOLATED"
+          },
+          "reason": "Running tests rule this room out independently of the unresolved floor."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [],
+        "abstain": true,
+        "abstention_reason": "unverified"
+      },
+      "ambiguities": [
+        "The two step-2 source reports have equal causal time and no source-priority declaration. Neither insertion order nor the earlier floor resolves them."
+      ]
+    },
+    {
+      "case_id": "freeform-ward-bundle",
+      "semantic_predicates": [
+        {
+          "predicate_id": "coverage",
+          "source": {
+            "event_id": "ward-order",
+            "span": {
+              "start": 58,
+              "end": 99
+            },
+            "quote": "cover the current required number of sets"
+          },
+          "meaning": "One bundle must meet the revised ward quantity.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.sets"
+            },
+            "operator": "GTE",
+            "target": {
+              "ref": "ward.required",
+              "binding_mode": "LIVE"
+            },
+            "unit": "set"
+          }
+        },
+        {
+          "predicate_id": "no-latex",
+          "source": {
+            "event_id": "ward-order",
+            "span": {
+              "start": 101,
+              "end": 117
+            },
+            "quote": "contain no latex"
+          },
+          "meaning": "Any bundle containing latex is excluded.",
+          "expression": {
+            "not": {
+              "subject": {
+                "ref": "chosen.latex"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            }
+          }
+        },
+        {
+          "predicate_id": "landed-budget",
+          "source": {
+            "event_id": "ward-order",
+            "span": {
+              "start": 123,
+              "end": 178
+            },
+            "quote": "cost no more than the released amount including freight"
+          },
+          "meaning": "Compare landed EUR, which already includes freight, to released EUR.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.landed"
+            },
+            "operator": "LTE",
+            "target": {
+              "ref": "finance.released",
+              "binding_mode": "LIVE"
+            },
+            "unit": "EUR"
+          }
+        }
+      ],
+      "expected_options": {
+        "4a70e3": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "coverage": "VIOLATED",
+            "no-latex": "SATISFIED",
+            "landed-budget": "SATISFIED"
+          },
+          "reason": "Eighteen sets do not cover the revised requirement of twenty."
+        },
+        "5b81f4": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "coverage": "SATISFIED",
+            "no-latex": "VIOLATED",
+            "landed-budget": "SATISFIED"
+          },
+          "reason": "The bundle contains latex."
+        },
+        "6c9205": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "coverage": "SATISFIED",
+            "no-latex": "SATISFIED",
+            "landed-budget": "SATISFIED"
+          },
+          "reason": "Twenty-four latex-free sets cost 345 EUR landed, within 350 EUR."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "6c9205"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": []
+    },
+    {
+      "case_id": "freeform-certified-motor",
+      "semantic_predicates": [
+        {
+          "predicate_id": "voltage",
+          "source": {
+            "event_id": "motor-request",
+            "span": {
+              "start": 26,
+              "end": 61
+            },
+            "quote": "at the controller's current voltage"
+          },
+          "meaning": "Use the rewired controller voltage, not the old sheet.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.voltage"
+            },
+            "operator": "EQ",
+            "target": {
+              "ref": "controller.voltage",
+              "binding_mode": "LIVE"
+            },
+            "unit": "volt"
+          }
+        },
+        {
+          "predicate_id": "new-motor",
+          "source": {
+            "event_id": "motor-request",
+            "span": {
+              "start": 185,
+              "end": 211
+            },
+            "quote": "Do not accept a used motor"
+          },
+          "meaning": "The observed new flag must be true.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.new"
+            },
+            "operator": "EQ",
+            "target": {
+              "value": true
+            }
+          }
+        },
+        {
+          "predicate_id": "motor-cert",
+          "source": {
+            "event_id": "motor-request",
+            "span": {
+              "start": 63,
+              "end": 97
+            },
+            "quote": "The motor must be Zone 2 certified"
+          },
+          "meaning": "Motor certification is unconditional.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.motor_cert"
+            },
+            "operator": "EQ",
+            "target": {
+              "value": true
+            }
+          }
+        },
+        {
+          "predicate_id": "adapter-cert",
+          "source": {
+            "event_id": "motor-request",
+            "span": {
+              "start": 99,
+              "end": 183
+            },
+            "quote": "If a bundle uses an adapter, the adapter must also have its own Zone 2 certification"
+          },
+          "meaning": "An absent adapter certificate is unknown only when an adapter is used.",
+          "expression": {
+            "if": {
+              "subject": {
+                "ref": "chosen.adapter"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "then": {
+              "subject": {
+                "ref": "chosen.adapter_cert"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "else": {
+              "literal": true
+            }
+          }
+        }
+      ],
+      "expected_options": {
+        "7da316": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "voltage": "SATISFIED",
+            "new-motor": "SATISFIED",
+            "motor-cert": "SATISFIED",
+            "adapter-cert": "SATISFIED"
+          },
+          "reason": "Direct new 208 V motor is certified; no adapter certificate is required."
+        },
+        "8eb427": {
+          "status": "UNVERIFIED",
+          "predicate_statuses": {
+            "voltage": "SATISFIED",
+            "new-motor": "SATISFIED",
+            "motor-cert": "SATISFIED",
+            "adapter-cert": "UNVERIFIED"
+          },
+          "reason": "The required adapter's certification is absent from the catalog."
+        },
+        "9fc538": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "voltage": "SATISFIED",
+            "new-motor": "SATISFIED",
+            "motor-cert": "SATISFIED",
+            "adapter-cert": "VIOLATED"
+          },
+          "reason": "The adapter explicitly lacks certification."
+        },
+        "a0d649": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "voltage": "VIOLATED",
+            "new-motor": "VIOLATED",
+            "motor-cert": "SATISFIED",
+            "adapter-cert": "SATISFIED"
+          },
+          "reason": "The voltage is obsolete and the motor is used."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "7da316"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": [
+        "A missing adapter certification is not false and is not inferred from motor certification. It is irrelevant for direct bundles."
+      ]
+    },
+    {
+      "case_id": "freeform-license-approval",
+      "semantic_predicates": [
+        {
+          "predicate_id": "roster",
+          "source": {
+            "event_id": "renewal-request",
+            "span": {
+              "start": 6,
+              "end": 41
+            },
+            "quote": "enough seats for the current roster"
+          },
+          "meaning": "Seat demand is the latest roster, not the approved quote's old roster.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.seats"
+            },
+            "operator": "GTE",
+            "target": {
+              "ref": "roster.seats",
+              "binding_mode": "LIVE"
+            },
+            "unit": "seat"
+          }
+        },
+        {
+          "predicate_id": "no-auto-renew",
+          "source": {
+            "event_id": "renewal-request",
+            "span": {
+              "start": 43,
+              "end": 76
+            },
+            "quote": "with automatic renewal turned off"
+          },
+          "meaning": "Automatic renewal must be false.",
+          "expression": {
+            "not": {
+              "subject": {
+                "ref": "chosen.auto"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            }
+          }
+        },
+        {
+          "predicate_id": "approved-cap",
+          "source": {
+            "event_id": "renewal-request",
+            "span": {
+              "start": 101,
+              "end": 239
+            },
+            "quote": "at or below the 900 USD quote approved in the initial approval-sheet record; a later indicative quote does not raise that approved ceiling"
+          },
+          "meaning": "The cap is the first quote version from approval-sheet, not its later indicative revision.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.annual"
+            },
+            "operator": "LTE",
+            "target": {
+              "ref": "renewal.quote",
+              "binding_mode": "SNAPSHOT",
+              "version": 1
+            },
+            "unit": "USD"
+          }
+        }
+      ],
+      "expected_options": {
+        "b1e75a": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "roster": "SATISFIED",
+            "no-auto-renew": "SATISFIED",
+            "approved-cap": "VIOLATED"
+          },
+          "reason": "950 USD exceeds the fixed approved 900 USD ceiling despite being below the indicative quote."
+        },
+        "c2f86b": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "roster": "SATISFIED",
+            "no-auto-renew": "SATISFIED",
+            "approved-cap": "SATISFIED"
+          },
+          "reason": "Fourteen seats, 895 USD, no auto-renewal satisfies the request."
+        },
+        "d3097c": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "roster": "VIOLATED",
+            "no-auto-renew": "SATISFIED",
+            "approved-cap": "SATISFIED"
+          },
+          "reason": "Twelve seats do not cover the revised fourteen-person roster."
+        },
+        "e41a8d": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "roster": "SATISFIED",
+            "no-auto-renew": "VIOLATED",
+            "approved-cap": "SATISFIED"
+          },
+          "reason": "Automatic renewal remains enabled."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "c2f86b"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": [
+        "The quote source is deliberately revised, but the user explicitly pins approval-sheet's initial approval. The roster remains live."
+      ]
+    },
+    {
+      "case_id": "freeform-rollback-mode",
+      "semantic_predicates": [
+        {
+          "predicate_id": "approved-digest",
+          "source": {
+            "event_id": "rollback-request",
+            "span": {
+              "start": 10,
+              "end": 70
+            },
+            "quote": "only to the digest currently approved by change record CR-17"
+          },
+          "meaning": "Use the amended exact digest.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.digest"
+            },
+            "operator": "EQ",
+            "target": {
+              "ref": "cr17.digest",
+              "binding_mode": "LIVE"
+            }
+          }
+        },
+        {
+          "predicate_id": "debug-off",
+          "source": {
+            "event_id": "rollback-request",
+            "span": {
+              "start": 72,
+              "end": 94
+            },
+            "quote": "with debug logging off"
+          },
+          "meaning": "Debug must be false.",
+          "expression": {
+            "not": {
+              "subject": {
+                "ref": "chosen.debug"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            }
+          }
+        },
+        {
+          "predicate_id": "canary-limit",
+          "source": {
+            "event_id": "rollback-request",
+            "span": {
+              "start": 96,
+              "end": 150
+            },
+            "quote": "If you use a canary, send at most 5 percent of traffic"
+          },
+          "meaning": "The traffic limit applies to canary mode.",
+          "expression": {
+            "if": {
+              "subject": {
+                "ref": "chosen.rollout"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": "canary"
+              }
+            },
+            "then": {
+              "subject": {
+                "ref": "chosen.traffic"
+              },
+              "operator": "LTE",
+              "target": {
+                "value": 5
+              },
+              "unit": "percent"
+            },
+            "else": {
+              "literal": true
+            }
+          }
+        },
+        {
+          "predicate_id": "full-audit",
+          "source": {
+            "event_id": "rollback-request",
+            "span": {
+              "start": 152,
+              "end": 209
+            },
+            "quote": "If you use a full rollout, its audit sink must be enabled"
+          },
+          "meaning": "Audit evidence is required for full rollout only.",
+          "expression": {
+            "if": {
+              "subject": {
+                "ref": "chosen.rollout"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": "full"
+              }
+            },
+            "then": {
+              "subject": {
+                "ref": "chosen.audit"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "else": {
+              "literal": true
+            }
+          }
+        }
+      ],
+      "expected_options": {
+        "f52b9e": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "approved-digest": "VIOLATED",
+            "debug-off": "SATISFIED",
+            "canary-limit": "SATISFIED",
+            "full-audit": "SATISFIED"
+          },
+          "reason": "The digest was superseded by the CR-17 amendment."
+        },
+        "063caf": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "approved-digest": "SATISFIED",
+            "debug-off": "SATISFIED",
+            "canary-limit": "SATISFIED",
+            "full-audit": "SATISFIED"
+          },
+          "reason": "Approved digest, debug off, and a five-percent canary; full-rollout audit is irrelevant."
+        },
+        "174db0": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "approved-digest": "SATISFIED",
+            "debug-off": "SATISFIED",
+            "canary-limit": "VIOLATED",
+            "full-audit": "SATISFIED"
+          },
+          "reason": "Ten percent exceeds the canary limit."
+        },
+        "285ec1": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "approved-digest": "SATISFIED",
+            "debug-off": "SATISFIED",
+            "canary-limit": "SATISFIED",
+            "full-audit": "VIOLATED"
+          },
+          "reason": "The full rollout lacks an enabled audit sink."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "063caf"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": [
+        "An absent mode-irrelevant field is not an unknown requirement. All offered rollout values are full or canary."
+      ]
+    },
+    {
+      "case_id": "freeform-copy-freeze-window",
+      "semantic_predicates": [
+        {
+          "predicate_id": "copy-buffer",
+          "source": {
+            "event_id": "window-request",
+            "span": {
+              "start": 26,
+              "end": 83
+            },
+            "quote": "starting at least 15 minutes after the data copy finishes"
+          },
+          "meaning": "Use latest copy finish plus fifteen minutes.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.start"
+            },
+            "operator": "GTE",
+            "target": {
+              "ref": "copy.finish",
+              "binding_mode": "LIVE",
+              "offset": 15
+            },
+            "unit": "minute"
+          }
+        },
+        {
+          "predicate_id": "freeze",
+          "source": {
+            "event_id": "window-request",
+            "span": {
+              "start": 89,
+              "end": 125
+            },
+            "quote": "finish before or at the freeze start"
+          },
+          "meaning": "End must not exceed freeze start.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.end"
+            },
+            "operator": "LTE",
+            "target": {
+              "ref": "freeze.start",
+              "binding_mode": "LIVE"
+            },
+            "unit": "minute"
+          }
+        },
+        {
+          "predicate_id": "coverage",
+          "source": {
+            "event_id": "window-request",
+            "span": {
+              "start": 127,
+              "end": 200
+            },
+            "quote": "An on-call engineer must be present unless that window is fully automated"
+          },
+          "meaning": "Either on-call presence or full automation is sufficient.",
+          "expression": {
+            "any": [
+              {
+                "subject": {
+                  "ref": "chosen.on_call"
+                },
+                "operator": "EQ",
+                "target": {
+                  "value": true
+                }
+              },
+              {
+                "subject": {
+                  "ref": "chosen.automated"
+                },
+                "operator": "EQ",
+                "target": {
+                  "value": true
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "expected_options": {
+        "396fd2": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "copy-buffer": "VIOLATED",
+            "freeze": "SATISFIED",
+            "coverage": "SATISFIED"
+          },
+          "reason": "Only ten minutes remain after the delayed copy, short of the required fifteen."
+        },
+        "4a70e4": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "copy-buffer": "SATISFIED",
+            "freeze": "SATISFIED",
+            "coverage": "VIOLATED"
+          },
+          "reason": "Timing is valid but neither on-call presence nor full automation is provided."
+        },
+        "5b81f5": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "copy-buffer": "SATISFIED",
+            "freeze": "VIOLATED",
+            "coverage": "SATISFIED"
+          },
+          "reason": "Automated window finishes five minutes after the freeze starts."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [],
+        "abstain": true,
+        "abstention_reason": "infeasible"
+      },
+      "ambiguities": []
+    },
+    {
+      "case_id": "freeform-hospital-dispatch",
+      "semantic_predicates": [
+        {
+          "predicate_id": "free-stock",
+          "source": {
+            "event_id": "dispatch-request",
+            "span": {
+              "start": 27,
+              "end": 100
+            },
+            "quote": "covers the current hospital order using its free units after reservations"
+          },
+          "meaning": "Compare the observed free stock, not gross stock, to the amended order.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.free"
+            },
+            "operator": "GTE",
+            "target": {
+              "ref": "order.units",
+              "binding_mode": "LIVE"
+            },
+            "unit": "unit"
+          }
+        },
+        {
+          "predicate_id": "receipt-expiry",
+          "source": {
+            "event_id": "dispatch-request",
+            "span": {
+              "start": 102,
+              "end": 160
+            },
+            "quote": "Its expiry day must be on or after the planned receipt day"
+          },
+          "meaning": "Expiry is inclusive at the observed planned receipt day.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.expiry"
+            },
+            "operator": "GTE",
+            "target": {
+              "ref": "receipt.day",
+              "binding_mode": "LIVE"
+            },
+            "unit": "day_index"
+          }
+        },
+        {
+          "predicate_id": "cold-proof",
+          "source": {
+            "event_id": "dispatch-request",
+            "span": {
+              "start": 162,
+              "end": 250
+            },
+            "quote": "If the lot needs a cold chain, use only a carrier with recorded cold-chain certification"
+          },
+          "meaning": "Cold lots need explicit true certification; ambient lots do not.",
+          "expression": {
+            "if": {
+              "subject": {
+                "ref": "chosen.cold"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "then": {
+              "subject": {
+                "ref": "chosen.carrier_cert"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "else": {
+              "literal": true
+            }
+          }
+        }
+      ],
+      "expected_options": {
+        "6c9206": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "free-stock": "SATISFIED",
+            "receipt-expiry": "SATISFIED",
+            "cold-proof": "SATISFIED"
+          },
+          "reason": "Eighty-six free units cover eighty-four; expiry follows receipt and no cold proof is needed."
+        },
+        "7da317": {
+          "status": "UNVERIFIED",
+          "predicate_statuses": {
+            "free-stock": "SATISFIED",
+            "receipt-expiry": "SATISFIED",
+            "cold-proof": "UNVERIFIED"
+          },
+          "reason": "Cold-chain carrier certification is missing, so this otherwise sufficient lot is unverified."
+        },
+        "8eb428": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "free-stock": "SATISFIED",
+            "receipt-expiry": "VIOLATED",
+            "cold-proof": "SATISFIED"
+          },
+          "reason": "The lot expires before the planned receipt day."
+        },
+        "9fc539": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "free-stock": "VIOLATED",
+            "receipt-expiry": "SATISFIED",
+            "cold-proof": "SATISFIED"
+          },
+          "reason": "Eighty-two free units cannot cover the amended order."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "6c9206"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": [
+        "The catalog does not state a carrier certification for the cold lot 7da317. Absence cannot be promoted to certified or uncertified."
+      ]
+    },
+    {
+      "case_id": "freeform-return-quarantine",
+      "semantic_predicates": [
+        {
+          "predicate_id": "product",
+          "source": {
+            "event_id": "return-routing-request",
+            "span": {
+              "start": 38,
+              "end": 61
+            },
+            "quote": "assigned to its product"
+          },
+          "meaning": "The bin must match the returned product exactly.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.product"
+            },
+            "operator": "EQ",
+            "target": {
+              "ref": "return.product",
+              "binding_mode": "LIVE"
+            }
+          }
+        },
+        {
+          "predicate_id": "empty",
+          "source": {
+            "event_id": "return-routing-request",
+            "span": {
+              "start": 24,
+              "end": 37
+            },
+            "quote": "one empty bin"
+          },
+          "meaning": "The bin must be empty.",
+          "expression": {
+            "subject": {
+              "ref": "chosen.empty"
+            },
+            "operator": "EQ",
+            "target": {
+              "value": true
+            }
+          }
+        },
+        {
+          "predicate_id": "qa-zone",
+          "source": {
+            "event_id": "return-routing-request",
+            "span": {
+              "start": 63,
+              "end": 178
+            },
+            "quote": "Until QA signs release, use a quarantine bin even if screening is negative; after release, use a released-stock bin"
+          },
+          "meaning": "The latest explicit QA release controls routing; screening is not release.",
+          "expression": {
+            "if": {
+              "subject": {
+                "ref": "qa.released"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "then": {
+              "subject": {
+                "ref": "chosen.zone"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": "released"
+              }
+            },
+            "else": {
+              "subject": {
+                "ref": "chosen.zone"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": "quarantine"
+              }
+            }
+          }
+        },
+        {
+          "predicate_id": "refrigeration",
+          "source": {
+            "event_id": "return-routing-request",
+            "span": {
+              "start": 180,
+              "end": 226
+            },
+            "quote": "A refrigerated return needs a refrigerated bin"
+          },
+          "meaning": "Cold storage is conditional on the return's observed refrigeration need.",
+          "expression": {
+            "if": {
+              "subject": {
+                "ref": "return.cold"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "then": {
+              "subject": {
+                "ref": "chosen.cold"
+              },
+              "operator": "EQ",
+              "target": {
+                "value": true
+              }
+            },
+            "else": {
+              "literal": true
+            }
+          }
+        }
+      ],
+      "expected_options": {
+        "a0d64a": {
+          "status": "SATISFIED",
+          "predicate_statuses": {
+            "product": "SATISFIED",
+            "empty": "SATISFIED",
+            "qa-zone": "SATISFIED",
+            "refrigeration": "SATISFIED"
+          },
+          "reason": "Empty matching refrigerated quarantine bin follows the corrected unreleased QA state."
+        },
+        "b1e75b": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "product": "SATISFIED",
+            "empty": "SATISFIED",
+            "qa-zone": "VIOLATED",
+            "refrigeration": "SATISFIED"
+          },
+          "reason": "Released-stock routing is forbidden while QA release is false, despite negative screening."
+        },
+        "c2f86c": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "product": "SATISFIED",
+            "empty": "SATISFIED",
+            "qa-zone": "SATISFIED",
+            "refrigeration": "VIOLATED"
+          },
+          "reason": "The refrigerated return cannot use an ambient bin."
+        },
+        "d3097d": {
+          "status": "VIOLATED",
+          "predicate_statuses": {
+            "product": "VIOLATED",
+            "empty": "VIOLATED",
+            "qa-zone": "SATISFIED",
+            "refrigeration": "SATISFIED"
+          },
+          "reason": "The bin is occupied and assigned to another product."
+        }
+      },
+      "expected_decision": {
+        "option_ids": [
+          "a0d64a"
+        ],
+        "abstain": false,
+        "abstention_reason": null
+      },
+      "ambiguities": [
+        "Negative screening does not imply release. The later explicit QA correction replaces the erroneous earlier flag."
+      ]
+    }
+  ]
+}

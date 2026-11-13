@@ -1,0 +1,57 @@
+experiment:
+  id: qwen36_constraint_memory
+  seed: 20261013
+  protocol: public_memoryarena_matched
+  dataset_name: ZexueHe/memoryarena
+  dataset_config: group_travel_planner
+  dataset_revision: da1a37c8b19280e18627ca01cf368195a5e1d92e
+  upstream_repo_sha: 6cd9de14b71915e39ac742a20dc33785e14b6aab
+  upstream_root: external/MemoryArena
+  splits_manifest: data/manifests/splits.json
+  tools_db_manifest: data/manifests/tool_db_checksums.json
+  partition: smoke
+  primary_endpoint: SR
+  primary_contrast: [E0, E2]
+  candidate: E3
+  final_holdout_frozen: false
+agent:
+  provider: polza
+  model: qwen/qwen3.6-27b
+  revision: provider-managed:qwen/qwen3.6-27b
+  base_url: https://polza.ai/api/v1
+  temperature: 0.0
+  max_steps_per_traveler: 30
+  max_completion_tokens: 8192
+  max_extraction_tokens: 16384
+  max_agent_visible_memory_tokens: 4096
+  max_total_tokens_per_group: 1500000
+  max_cost_rub_per_group: 100.0
+  reasoning: {enabled: true}
+  extraction_reasoning: {enabled: false}
+  stream: true
+  request_timeout_seconds: 180
+  retries: 2
+  routing: {only: [chutes/fp8], allow_fallbacks: false}
+memory:
+  backend: E3
+  read_schedule: session_start
+  group_isolated: true
+  public_base_outside_memory: true
+  parser: llm
+  max_glossary_hops: 3
+  compression_trigger_tokens: 4096
+  compression_mode: merge
+  preserve_source_evidence: true
+  recovery_max_attempts: 2
+evaluation:
+  metrics: [SR, PS, SPS]
+  confidence_interval: paired_cluster_bootstrap
+  cluster_key: base_template_id
+  bootstrap_iterations: 10000
+  confidence: 0.95
+safety:
+  hide_future_questions: true
+  hide_gold_answers: true
+  hide_oracle_annotations: true
+  no_cross_group_memory: true
+  judgement_mode: none

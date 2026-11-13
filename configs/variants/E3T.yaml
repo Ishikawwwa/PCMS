@@ -1,0 +1,11 @@
+experiment:
+  id: lossless_table_frontier_development
+  partition: smoke
+  primary_contrast: [E0, E3T]
+  candidate: E3T
+  final_holdout_frozen: false
+agent:
+  max_completion_tokens: 16384
+memory:
+  backend: E3T
+  read_schedule: session_start

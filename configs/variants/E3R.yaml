@@ -1,0 +1,15 @@
+experiment:
+  id: verified_request_frontier_development
+  partition: smoke
+  primary_contrast: [E0, E3R]
+  candidate: E3R
+  declared_inheritance_contract: true
+  tool_city_state_annotation_normalization: true
+  tool_price_unit: USD
+  final_holdout_frozen: false
+agent:
+  max_completion_tokens: 16384
+memory:
+  backend: E3R
+  read_schedule: session_start
+  recovery_max_attempts: 2

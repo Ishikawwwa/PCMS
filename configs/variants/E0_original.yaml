@@ -1,0 +1,7 @@
+description: Original v0 representation with bounded iterative glossary lookup enabled. Deterministic compaction substitutes for an LLM summary writer.
+memory:
+  backend: E0
+  compression_mode: merge
+  glossary_hops: true
+  max_glossary_hops: 4
+  glossary_step_limit: 16

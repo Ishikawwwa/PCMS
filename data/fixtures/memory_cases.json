@@ -1,0 +1,2187 @@
+{
+  "schema_version": 1,
+  "description": "Section 5.2 causal fixture suite. Fixed parser outputs, actual actions only; no external model or benchmark gold.",
+  "fixtures": [
+    {
+      "name": "01_single_local_restriction_no_history",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Alice must have vegan dinner on day 2.",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "vegan dinner",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_local",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Alice"
+                  },
+                  "subject": {
+                    "traveler": "Alice",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "vegan"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "c_local@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "constraint_id": "c_local",
+            "kind": "LOCAL",
+            "operator": "EQUALS",
+            "target": {
+              "value": "vegan"
+            },
+            "status": "ACTIVE",
+            "source_refs": [
+              "event:request"
+            ]
+          }
+        ],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "02_join_same_dinner_same_day",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "Plan Alice",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": "day 2 dinner Blue Bistro",
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob day 2 dinner equals Alice day 2 dinner.",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "same dinner as Alice",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_join",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "decision:Alice:day2:dinner@v1",
+          "c_join@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "decision_id": "decision:Alice:day2:dinner",
+            "value": "Blue Bistro",
+            "status": "COMMITTED",
+            "version": 1
+          }
+        ],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "03_join_chain_alice_bob_carol",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "Plan Alice",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": "day 2 dinner Blue Bistro",
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob dinner equals Alice",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "join Alice dinner",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_join",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "action": "Blue Bistro",
+            "step": 1,
+            "decisions": [
+              {
+                "traveler": "Bob",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "carol_request",
+            "step": 2,
+            "type": "user_request",
+            "content": "Carol dinner equals Bob",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Carol",
+            "query": "join Bob dinner",
+            "step": 2,
+            "round_idx": 2,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_carol",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Carol"
+                  },
+                  "subject": {
+                    "traveler": "Carol",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Bob:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:carol_request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "decision:Alice:day2:dinner@v1",
+          "c_join@v1",
+          "decision:Bob:day2:dinner@v1",
+          "c_carol@v1"
+        ],
+        "error_codes": [],
+        "record_json": [],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "04_relation_hotel_rating_offset",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "hotel",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": {
+              "hotel_rating": 4
+            },
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 1,
+                "slot": "hotel",
+                "attribute": "rating",
+                "value": 4
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob hotel rating is 1 greater than Alice hotel rating.",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "hotel rating Alice plus 1",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_rating",
+                  "kind": "RELATION",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 1,
+                    "slot": "hotel",
+                    "attribute": "rating"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day1:hotel:rating",
+                    "offset": 1
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "decision:Alice:day1:hotel:rating@v1",
+          "c_rating@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "constraint_id": "c_rating",
+            "kind": "RELATION",
+            "target": {
+              "ref": "decision:Alice:day1:hotel:rating",
+              "offset": 1
+            }
+          }
+        ],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "05_relation_units_and_inequality",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": {
+              "dinner_price": 80,
+              "unit": "USD"
+            },
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "price",
+                "value": 80,
+                "unit": "USD"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob dinner price USD must be at least 20 less than Alice dinner price USD",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "Alice dinner price less 20 USD",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_price",
+                  "kind": "RELATION",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "price"
+                  },
+                  "operator": "LTE",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner:price",
+                    "offset": -20,
+                    "unit": "USD"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ],
+                  "unit": "USD"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "decision:Alice:day2:dinner:price@v1",
+          "c_price@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "constraint_id": "c_price",
+            "operator": "LTE",
+            "unit": "USD",
+            "target": {
+              "ref": "decision:Alice:day2:dinner:price",
+              "offset": -20,
+              "unit": "USD"
+            }
+          }
+        ],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "06_mixed_join_relation_sharing_slot",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": {
+              "restaurant": "Blue Bistro",
+              "price": 80,
+              "unit": "USD"
+            },
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              },
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "price",
+                "value": 80,
+                "unit": "USD"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob dinner equals Alice dinner and Bob USD price is 20 less than Alice",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "join Alice dinner",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_join",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "constraint_id": "c_price",
+                  "kind": "RELATION",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "price"
+                  },
+                  "operator": "LTE",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner:price",
+                    "offset": -20,
+                    "unit": "USD"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ],
+                  "unit": "USD"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "decision:Alice:day2:dinner@v1",
+          "c_join@v1",
+          "decision:Alice:day2:dinner:price@v1",
+          "c_price@v1"
+        ],
+        "error_codes": [],
+        "record_json": [],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "07_multiple_attributes_same_entity",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": {
+              "restaurant": "Blue Bistro",
+              "price": 80,
+              "rating": 4.5
+            },
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              },
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "price",
+                "value": 80
+              },
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "rating",
+                "value": 4.5
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob needs Alice dinner rating and Alice dinner price",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "Alice dinner attributes",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_price",
+                  "kind": "RELATION",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "price"
+                  },
+                  "operator": "LTE",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner:price",
+                    "offset": -20,
+                    "unit": "USD"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ],
+                  "unit": "USD"
+                },
+                {
+                  "constraint_id": "c_entity_rating",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "rating"
+                  },
+                  "operator": "GTE",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner:rating"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "decision:Alice:day2:dinner:price@v1",
+          "c_price@v1",
+          "decision:Alice:day2:dinner:rating@v1",
+          "c_entity_rating@v1",
+          "decision:Alice:day2:dinner@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "decision_id": "decision:Alice:day2:dinner:price",
+            "attribute": "price",
+            "value": 80
+          },
+          {
+            "decision_id": "decision:Alice:day2:dinner:rating",
+            "attribute": "rating",
+            "value": 4.5
+          }
+        ],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "08_explicit_preference_supersession",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Alice dinner vegan",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "vegan",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_old",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Alice"
+                  },
+                  "subject": {
+                    "traveler": "Alice",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "vegan"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "update",
+            "step": 1,
+            "type": "user_request",
+            "content": "Update Alice dinner to seafood instead of vegan",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "seafood",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_new",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Alice"
+                  },
+                  "subject": {
+                    "traveler": "Alice",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "seafood"
+                  },
+                  "source_refs": [
+                    "event:update"
+                  ],
+                  "supersedes": "c_old"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "c_new@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "constraint_id": "c_new",
+            "target": {
+              "value": "seafood"
+            },
+            "supersedes": "c_old"
+          }
+        ],
+        "glossary_ids": [],
+        "snapshot_records": [
+          {
+            "constraint_id": "c_old",
+            "status": "SUPERSEDED",
+            "version": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "09_actual_committed_choice_preserved",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "Plan Alice",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": "day 2 dinner Blue Bistro",
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob dinner same as Alice",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "Alice dinner",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_join",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "decision:Alice:day2:dinner@v1",
+          "c_join@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "decision_id": "decision:Alice:day2:dinner",
+            "value": "Blue Bistro"
+          }
+        ],
+        "glossary_ids": [],
+        "context_contains": [
+          "Blue Bistro"
+        ],
+        "context_excludes": [
+          "Red Restaurant"
+        ]
+      }
+    },
+    {
+      "name": "10_failed_branch_excluded",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": "Rejected Bistro",
+            "step": 0,
+            "branch_status": "FAILED",
+            "status": "FAILED",
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Rejected Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob dinner equals Alice dinner",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "Alice dinner",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_join",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "UNRESOLVED",
+        "closure_ids": [
+          "c_join@v1"
+        ],
+        "error_codes": [
+          "INVALID_REFERENCE"
+        ],
+        "record_json": [],
+        "glossary_ids": [],
+        "context_excludes": [
+          "Rejected Bistro"
+        ]
+      }
+    },
+    {
+      "name": "11_ambiguous_entity_alias",
+      "variant": "E6",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Alex North and Alex South are different people",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "Who is Alex?",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "definitions": [
+                {
+                  "term_id": "definition:Alex North",
+                  "term": "Alex North",
+                  "text": "Alex North is one person",
+                  "related_terms": [],
+                  "entity_aliases": [
+                    "Alex"
+                  ],
+                  "parent_scope": {
+                    "group": "g1"
+                  },
+                  "evidence_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "term_id": "definition:Alex South",
+                  "term": "Alex South",
+                  "text": "Alex South is another person",
+                  "related_terms": [],
+                  "entity_aliases": [
+                    "Alex"
+                  ],
+                  "parent_scope": {
+                    "group": "g1"
+                  },
+                  "evidence_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "UNRESOLVED",
+        "closure_ids": [],
+        "error_codes": [
+          "AMBIGUOUS_ALIAS"
+        ],
+        "record_json": [],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "12_two_hop_glossary_chain",
+      "variant": "E6",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Frodo follows Bilbo; Bilbo lives in Shire; Shire is a named location",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "Where does Frodo live?",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "definitions": [
+                {
+                  "term_id": "definition:Frodo",
+                  "term": "Frodo",
+                  "text": "Frodo follows Bilbo",
+                  "related_terms": [
+                    "Bilbo"
+                  ],
+                  "entity_aliases": [],
+                  "parent_scope": {
+                    "group": "g1"
+                  },
+                  "evidence_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "term_id": "definition:Bilbo",
+                  "term": "Bilbo",
+                  "text": "Bilbo lives in Shire",
+                  "related_terms": [
+                    "Shire"
+                  ],
+                  "entity_aliases": [],
+                  "parent_scope": {
+                    "group": "g1"
+                  },
+                  "evidence_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "term_id": "definition:Shire",
+                  "term": "Shire",
+                  "text": "Shire is a named location",
+                  "related_terms": [],
+                  "entity_aliases": [],
+                  "parent_scope": {
+                    "group": "g1"
+                  },
+                  "evidence_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [],
+        "error_codes": [],
+        "record_json": [],
+        "glossary_ids": [
+          "definition:Frodo",
+          "definition:Bilbo",
+          "definition:Shire"
+        ]
+      }
+    },
+    {
+      "name": "13_cyclic_glossary_aliases",
+      "variant": "E6",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Frodo refers to Bilbo; Bilbo refers to Frodo",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "Frodo",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "definitions": [
+                {
+                  "term_id": "definition:Frodo",
+                  "term": "Frodo",
+                  "text": "Frodo refers to Bilbo",
+                  "related_terms": [
+                    "Bilbo"
+                  ],
+                  "entity_aliases": [],
+                  "parent_scope": {
+                    "group": "g1"
+                  },
+                  "evidence_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "term_id": "definition:Bilbo",
+                  "term": "Bilbo",
+                  "text": "Bilbo refers to Frodo",
+                  "related_terms": [
+                    "Frodo"
+                  ],
+                  "entity_aliases": [],
+                  "parent_scope": {
+                    "group": "g1"
+                  },
+                  "evidence_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "UNRESOLVED",
+        "closure_ids": [],
+        "error_codes": [
+          "GLOSSARY_CYCLE"
+        ],
+        "record_json": [],
+        "glossary_ids": [
+          "definition:Frodo",
+          "definition:Bilbo"
+        ]
+      }
+    },
+    {
+      "name": "14_contradictory_constraints",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Bob dinner must equal vegan and must equal seafood",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_x",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "vegan"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "constraint_id": "c_y",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "seafood"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "VALIDATION_FAILED",
+        "closure_ids": [
+          "c_x@v1",
+          "c_y@v1"
+        ],
+        "error_codes": [
+          "CONTRADICTORY_CONSTRAINTS"
+        ],
+        "record_json": [],
+        "glossary_ids": []
+      }
+    },
+    {
+      "name": "15_missing_traveler_slot_reference",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Bob dinner equals Alice dinner",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "join Alice dinner",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_join",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "UNRESOLVED",
+        "closure_ids": [
+          "c_join@v1"
+        ],
+        "error_codes": [
+          "MISSING_REFERENCE",
+          "UNRESOLVED_REFERENCE"
+        ],
+        "record_json": [],
+        "glossary_ids": [],
+        "missing_refs": [
+          "decision:Alice:day2:dinner"
+        ]
+      }
+    },
+    {
+      "name": "16_out_of_budget_dependency_closure",
+      "variant": "E3",
+      "group_id": "g1",
+      "config": {
+        "token_budget": 220
+      },
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "large explicit requirements",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_large_0",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "venue 0 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "constraint_id": "c_large_1",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "venue 1 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                },
+                {
+                  "constraint_id": "c_large_2",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "value": "venue 2 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "BUDGET_OVERFLOW",
+        "closure_ids": [],
+        "error_codes": [
+          "BUDGET_OVERFLOW"
+        ],
+        "record_json": [],
+        "glossary_ids": [],
+        "required_closure_ids": [
+          "c_large_0@v1",
+          "c_large_1@v1",
+          "c_large_2@v1"
+        ],
+        "batch_min_count": 3
+      }
+    },
+    {
+      "name": "17_compression_preserves_exact_comparators",
+      "variant": "E3",
+      "group_id": "g1",
+      "config": {
+        "token_budget": 600
+      },
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Bob price <= 49.95 USD and rating >= 4.75",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_exact_price",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "price"
+                  },
+                  "operator": "LTE",
+                  "target": {
+                    "value": 49.95
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ],
+                  "unit": "USD",
+                  "narrative": "repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation repeated explanation "
+                },
+                {
+                  "constraint_id": "c_exact_rating",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "rating"
+                  },
+                  "operator": "GTE",
+                  "target": {
+                    "value": 4.75
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ],
+                  "narrative": "more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative more narrative "
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "OK",
+        "closure_ids": [
+          "c_exact_price@v1",
+          "c_exact_rating@v1"
+        ],
+        "error_codes": [],
+        "record_json": [
+          {
+            "constraint_id": "c_exact_price",
+            "operator": "LTE",
+            "target": {
+              "value": 49.95
+            },
+            "unit": "USD"
+          },
+          {
+            "constraint_id": "c_exact_rating",
+            "operator": "GTE",
+            "target": {
+              "value": 4.75
+            }
+          }
+        ],
+        "glossary_ids": [],
+        "min_compression_events": 1
+      }
+    },
+    {
+      "name": "18_independent_groups_identical_names",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "Plan Alice",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": "day 2 dinner Blue Bistro",
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "reset",
+          "value": "g2"
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g2",
+            "traveler": "Bob",
+            "query": "Alice dinner",
+            "step": 0,
+            "dependency_refs": [
+              "decision:Alice:day2:dinner"
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "status": "UNRESOLVED",
+        "closure_ids": [],
+        "error_codes": [
+          "MISSING_REFERENCE"
+        ],
+        "record_json": [],
+        "glossary_ids": [],
+        "context_excludes": [
+          "Blue Bistro"
+        ],
+        "snapshot_group": "g2"
+      }
+    },
+    {
+      "name": "19_raw_evidence_contradicts_summary_literal",
+      "variant": "E4",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "request",
+            "step": 0,
+            "type": "user_request",
+            "content": "Alice dinner price must be no more than 40",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_false",
+                  "kind": "LOCAL",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Alice"
+                  },
+                  "subject": {
+                    "traveler": "Alice",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "price"
+                  },
+                  "operator": "LTE",
+                  "target": {
+                    "value": 400
+                  },
+                  "source_refs": [
+                    "event:request"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "expected": {
+        "status": "VALIDATION_FAILED",
+        "closure_ids": [],
+        "error_codes": [
+          "EVIDENCE_MISMATCH"
+        ],
+        "record_json": [],
+        "glossary_ids": [],
+        "absent_ids": [
+          "c_false"
+        ]
+      }
+    },
+    {
+      "name": "20_targeted_invalidation_depth_four_chain",
+      "variant": "E5",
+      "group_id": "g1",
+      "config": {},
+      "operations": [
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "query": "dinner",
+            "step": 0,
+            "round_idx": 0
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": "Blue Bistro",
+            "step": 0,
+            "decisions": [
+              {
+                "traveler": "Alice",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "r_bob",
+            "step": 1,
+            "type": "user_request",
+            "content": "Bob dinner equals Alice dinner",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "query": "join Alice",
+            "step": 1,
+            "round_idx": 1,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_bob",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Bob"
+                  },
+                  "subject": {
+                    "traveler": "Bob",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Alice:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:r_bob"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Bob",
+            "action": "Blue Bistro",
+            "step": 1,
+            "decisions": [
+              {
+                "traveler": "Bob",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "r_carol",
+            "step": 2,
+            "type": "user_request",
+            "content": "Carol dinner equals Bob dinner",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Carol",
+            "query": "join Bob",
+            "step": 2,
+            "round_idx": 2,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_carol",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Carol"
+                  },
+                  "subject": {
+                    "traveler": "Carol",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Bob:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:r_carol"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Carol",
+            "action": "Blue Bistro",
+            "step": 2,
+            "decisions": [
+              {
+                "traveler": "Carol",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "observe",
+          "value": {
+            "event_id": "r_dave",
+            "step": 3,
+            "type": "user_request",
+            "content": "Dave dinner equals Carol dinner",
+            "group_id": "g1"
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Dave",
+            "query": "join Carol",
+            "step": 3,
+            "round_idx": 3,
+            "extraction": {
+              "constraints": [
+                {
+                  "constraint_id": "c_dave",
+                  "kind": "JOIN",
+                  "scope": {
+                    "group": "g1",
+                    "traveler": "Dave"
+                  },
+                  "subject": {
+                    "traveler": "Dave",
+                    "day": 2,
+                    "slot": "dinner",
+                    "attribute": "value"
+                  },
+                  "operator": "EQUALS",
+                  "target": {
+                    "ref": "decision:Carol:day2:dinner"
+                  },
+                  "source_refs": [
+                    "event:r_dave"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Dave",
+            "action": "Blue Bistro",
+            "step": 3,
+            "decisions": [
+              {
+                "traveler": "Dave",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Blue Bistro"
+              }
+            ]
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Zoe",
+            "query": "independent dinner",
+            "step": 4,
+            "round_idx": 4
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Zoe",
+            "action": "Independent Inn",
+            "step": 4,
+            "decisions": [
+              {
+                "traveler": "Zoe",
+                "day": 2,
+                "slot": "dinner",
+                "attribute": "value",
+                "value": "Independent Inn"
+              }
+            ]
+          }
+        },
+        {
+          "op": "commit",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Alice",
+            "action": "new observation invalidates Alice",
+            "step": 5,
+            "invalidate_decision_refs": [
+              "decision:Alice:day2:dinner"
+            ],
+            "recovery_trigger": "explicit_conflict",
+            "remaining_action_budget": 2,
+            "decisions": []
+          }
+        },
+        {
+          "op": "begin",
+          "value": {
+            "group_id": "g1",
+            "traveler": "Eve",
+            "query": "Dave dinner",
+            "step": 6,
+            "round_idx": 6,
+            "dependency_refs": [
+              "decision:Dave:day2:dinner"
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "status": "UNRESOLVED",
+        "closure_ids": [],
+        "error_codes": [
+          "INVALID_REFERENCE"
+        ],
+        "record_json": [],
+        "glossary_ids": [],
+        "invalidated_ids": [
+          "decision:Alice:day2:dinner",
+          "decision:Bob:day2:dinner",
+          "decision:Carol:day2:dinner",
+          "decision:Dave:day2:dinner"
+        ],
+        "valid_ids": [
+          "decision:Zoe:day2:dinner"
+        ],
+        "recovery_seed": [
+          "decision:Alice:day2:dinner"
+        ],
+        "recovery_earliest_step": 0,
+        "immutable_value": {
+          "decision_id": "decision:Alice:day2:dinner",
+          "version": 1,
+          "status": "COMMITTED",
+          "value": "Blue Bistro"
+        }
+      }
+    }
+  ]
+}

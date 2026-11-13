@@ -1,0 +1,46 @@
+{
+  "upstream_sha": "6cd9de14b71915e39ac742a20dc33785e14b6aab",
+  "database_path": "external/MemoryArena/env/env_systems/travel_planner_env/database",
+  "files": {
+    "accommodations/clean_accommodations_2022.csv": {
+      "sha256": "2fc30ba27f91d9d332b52137b4fe996d513f676794215f5d64b6bb94dd7badd4",
+      "bytes": 525522
+    },
+    "attractions/attractions.csv": {
+      "sha256": "fcac4410253884bbdc86ff74fa0d7370a51101bea565b89af602283e7b217cc3",
+      "bytes": 823285
+    },
+    "background/citySet.txt": {
+      "sha256": "1cd434921a634d35c70f7d67570d88940381e663a8b608a9195969e8a419ce73",
+      "bytes": 3375
+    },
+    "background/citySet_with_states.txt": {
+      "sha256": "0722d12ec48f308a1fd9d3b0b5c7055d5136e8122b9b3b31031c23fd46542414",
+      "bytes": 6232
+    },
+    "background/stateSet.txt": {
+      "sha256": "8eea2a9d2eac052097a2f66ae588667ee18ef0fd13537380df4c56df23dfab70",
+      "bytes": 707
+    },
+    "flights/clean_Flights_2022.csv": {
+      "sha256": "8dafdb0e3f8b79ce599a1e612a772865295bc226b46e5fb278368f7255b11cee",
+      "bytes": 304807007
+    },
+    "googleDistanceMatrix/distance.csv": {
+      "sha256": "7dc1a26dc7877ae96ce63e74be0d9660bbdef96ffccaffce441128e3a4864a27",
+      "bytes": 795427
+    },
+    "restaurants/clean_restaurant_2022.csv": {
+      "sha256": "afe116614304234f743f045852a985e11cbde80463c41ad84c38a14f282c9859",
+      "bytes": 692575
+    }
+  },
+  "complete": true,
+  "flight_provenance": {
+    "source": "official MemoryArena setup_travel.md Google Drive folder",
+    "url": "https://drive.usercontent.google.com/download?id=1dNtxHFv7k0PeMHI0smZk8t-dBlWLA0Gz&export=download&confirm=t",
+    "expected_sha256": "8dafdb0e3f8b79ce599a1e612a772865295bc226b46e5fb278368f7255b11cee",
+    "cross_check": "osunlp/TravelPlannerLeaderboard official Hugging Face space LFS SHA256",
+    "mirror_revision": "a57daf2e45155a5378dcf75ee9fe374e671ee048"
+  }
+}

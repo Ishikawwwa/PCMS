@@ -1,0 +1,4 @@
+description: E4 plus targeted transitive invalidation. Requires caller-controlled replanning; memory alone does not perform repair.
+memory:
+  backend: E5
+  compression_mode: protected
