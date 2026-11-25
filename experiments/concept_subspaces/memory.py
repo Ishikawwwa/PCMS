@@ -18,6 +18,9 @@ class Memory:
     cents: int | None = None
     budget_cents: int | None = None
     purchase_slot: int | None = None
+    constraint_family: str | None = None
+    source_order: int | None = None
+    subject: str | None = None
 
     def __post_init__(self):
         if not self.source or not self.concepts:
@@ -28,6 +31,10 @@ class Memory:
             raise ValueError("A table reference needs both table and row IDs")
         if self.status == "withdrawn" and self.table is None:
             raise ValueError("A withdrawal needs a table row")
+        if self.constraint_family is not None and (not self.constraint_family.strip() or self.table is None):
+            raise ValueError("A constraint family requires a named table row")
+        if self.subject is not None and (self.table is None or self.subject not in self.concepts):
+            raise ValueError("A row subject must link to an indexed concept")
 
     def line(self) -> str:
         return f"[{self.status}] {self.text} (source: {self.source})"
@@ -40,14 +47,17 @@ class Snapshot:
         self.through = through
         self.rows: dict[str, dict[str, Memory]] = defaultdict(dict)
         self.subspaces: dict[str, list[Memory]] = defaultdict(list)
-        visible = sorted((m for m in memories if m.step <= through), key=lambda m: m.step)
+        visible = sorted((m for m in memories if m.step <= through),
+                         key=lambda m: (m.step, m.source_order if m.source_order is not None else -1))
         self.by_id = {m.id: m for m in visible}
         if len(self.by_id) != len(visible):
             raise ValueError("Memory IDs must be unique")
         for memory in visible:
             if memory.status in {"confirmed", "withdrawn"} and memory.table is not None:
                 prior = self.rows[memory.table].get(memory.row)
-                if prior is not None and prior.step == memory.step:
+                if (prior is not None and prior.step == memory.step
+                        and not (prior.source == memory.source and prior.source_order is not None
+                                 and memory.source_order is not None and prior.source_order < memory.source_order)):
                     raise ValueError("Conflicting confirmations at the same evidence step")
                 self.rows[memory.table][memory.row] = memory
             for concept in dict.fromkeys(memory.concepts):
@@ -80,6 +90,7 @@ class ReadScope:
     budget_cents: int | None = None
     spend_rows: tuple[str, ...] = ()
     budget_source: str | None = None
+    required_ids: tuple[str, ...] = ()
 
 
 def dollars(cents: int) -> str:
@@ -117,6 +128,13 @@ def read_context(
             return False
         lines.append(line)
         return True
+
+    for memory_id in dict.fromkeys(scope.required_ids):
+        memory = snapshot.by_id.get(memory_id)
+        if memory is None or not snapshot.available(memory) or memory.status != "confirmed":
+            decision(memory_id, "inactive_reference")
+        elif append(memory.line(), memory.id):
+            delivered.append(memory.id)
 
     # Use the frozen recall set as the anchor even when the prompt budget drops
     # some initial lines. Only an active confirmation may authorize expansion.

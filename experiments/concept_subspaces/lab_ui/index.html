@@ -4,8 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Concept Memory Lab</title>
-  <link rel="stylesheet" href="/lab.css?v=3">
-  <script defer src="/lab.js?v=4"></script>
+  <link rel="stylesheet" href="/lab.css?v=6">
+  <script defer src="/memory.js?v=6"></script>
+  <script defer src="/lab.js?v=10"></script>
 </head>
 <body>
   <header class="app-header">
@@ -48,12 +49,25 @@
       <div class="tabs" aria-label="Run views">
         <button id="timeline-tab" class="tab selected" aria-pressed="true">Timeline</button>
         <button id="results-tab" class="tab" aria-pressed="false">Results</button>
+        <button id="memory-tab" class="tab" aria-pressed="false">Memory</button>
         <button id="files-tab" class="tab" aria-pressed="false">Artifacts</button>
         <button id="manifest-tab" class="tab" aria-pressed="false">Run settings</button>
         <div id="metrics" class="metrics" aria-live="off"></div>
       </div>
 
       <section id="results" class="detail-scroll" aria-label="Run results" hidden></section>
+      <section id="memory" class="detail-scroll" aria-label="Memory replay" hidden>
+        <div class="memory-controls">
+          <label>Case <select id="memory-case"></select></label>
+          <button id="memory-prev" aria-label="Previous memory step">←</button>
+          <button id="memory-next" aria-label="Next memory step">→</button>
+          <input id="memory-slider" type="range" min="0" max="0" value="0" aria-label="Memory replay step">
+          <select id="memory-jump" aria-label="Jump to memory event"><option value="">Jump to…</option></select>
+          <label><input id="memory-follow" type="checkbox" checked> Follow latest</label>
+        </div>
+        <p id="memory-status" class="subtle" role="status"></p>
+        <div id="memory-body"></div>
+      </section>
 
       <section id="timeline" class="split" aria-label="Timeline">
         <div class="list-pane">
@@ -111,6 +125,14 @@
           <label class="field">Traveler limit <span class="subtle">Blank for full group</span><input type="number" name="turns" min="1" max="20" value="2"></label>
         </div>
         <label id="worker-field" class="field" hidden>Parallel groups<input type="number" name="workers" min="1" max="16" value="8"></label>
+        <label id="pcms-read-field" class="field" hidden>PCMS retrieval
+          <select name="pcms_read_mode">
+            <option value="raw">Global retrieval, raw excerpts</option>
+            <option value="global-compact">Global retrieval, compact context</option>
+            <option value="jev-compact">Per-concept Jev, compact context</option>
+          </select>
+        </label>
+        <label id="repair-checks-field" class="check" hidden><input type="checkbox" name="repair_checks_only"> Run only groups 2, 4, 6, 8, 10, 12, and 14</label>
         <label id="pcms-only-field" class="check" hidden><input type="checkbox" name="pcms_only" checked> Run PCMS only and show the published MAGE reference</label>
         <label class="field">Action limit per traveler<input type="number" name="max_steps" min="1" max="100" value="40"></label>
         <label class="check"><input type="checkbox" name="thinking" checked> Enable actor reasoning in both arms</label>

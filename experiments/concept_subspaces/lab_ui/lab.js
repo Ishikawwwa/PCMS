@@ -112,6 +112,11 @@ function estimateFinish(run, events, now = Date.now(), benchmark = null) {
     const scored = arms?.[arm]?.travelers_scored ?? 0;
     const elapsed = now - Date.parse(manifest.started);
     const pilotPace = manifest.pilot_seconds_per_traveler * 1000 / manifest.workers;
+    // The seven-case rerun starts all groups together, so the first completion
+    // cannot establish the remaining workers' pace.
+    if (manifest.partition === "repair-checks") {
+      return scored >= manifest.travelers ? {state: "finishing"} : {state: "estimating"};
+    }
     const pace = scored >= manifest.workers * 7 ? elapsed / scored : pilotPace;
     const remaining = (manifest.travelers - scored) * pace;
     if (!Number.isFinite(remaining)) return {state: "estimating"};
@@ -125,13 +130,15 @@ if (typeof module !== "undefined") module.exports = {estimateFinish, summarizeUs
 
 const $ = (id) => document.getElementById(id);
 const terminal = new Set(["complete", "failed", "stopped", "terminated"]);
+const baselineRuns = typeof location === "undefined" ? [] : new URLSearchParams(location.search).getAll("baseline");
+const comparisonRun = typeof location === "undefined" ? null : new URLSearchParams(location.search).get("run");
 const state = {
   config: null, runs: [], selected: null, tab: "timeline", events: [], cursor: 0,
   detail: null, detailSequence: null, raw: false, files: [], file: null, page: null,
   latestPage: true, polling: false, busy: false, generation: 0, runListKey: "", fileListKey: "",
-  resultData: null, resultLoading: false, benchmark: null, workers: new Map(),
+  resultData: null, resultLoading: false, benchmark: null, workers: new Map(), pcmsBaseline: null,
 };
-const views = ["timeline", "results", "files", "manifest"];
+const views = ["timeline", "results", "memory", "files", "manifest"];
 const statusNames = {
   complete: "Complete", failed: "Failed", running: "Running", stopped: "Stopped", paused: "Paused",
   terminated: "Terminated", starting: "Starting", pause_requested: "Pause requested",
@@ -176,9 +183,15 @@ function post(path, data) {
   });
 }
 
-function notice(text) {
-  $("notice").textContent = text || "";
-  $("notice").hidden = !text;
+function notice(text, source = "") {
+  const banner = $("notice");
+  banner.textContent = text || "";
+  banner.hidden = !text;
+  banner.dataset.source = source;
+}
+
+function clearNotice(source) {
+  if ($("notice").dataset.source === source) notice("");
 }
 
 function name(run) {
@@ -227,6 +240,9 @@ function renderHeader() {
   if (m.memory_tokens) parts.push(`${m.memory_tokens} memory tokens`);
   if (m.turns) parts.push(`${m.turns} of ${m.full_turns} travelers`);
   if (m.benchmark) {
+    if (m.pcms_read_mode && m.pcms_read_mode !== "raw") {
+      parts.push(m.pcms_read_mode === "jev-compact" ? "Per-concept Jev, compact context" : "Global retrieval, compact context");
+    }
     const progress = state.benchmark?.splits?.all;
     const groups = state.benchmark?.groups;
     parts.push(`${progress?.paired ?? 0} / ${m.groups} groups scored`);
@@ -289,7 +305,7 @@ function renderEta(run) {
 
 function showTab(tab) {
   state.tab = tab;
-  $("metrics").hidden = tab === "results";
+  $("metrics").hidden = tab === "results" || tab === "memory";
   for (const id of views) {
     $(id).hidden = id !== tab;
     $(`${id}-tab`).classList.toggle("selected", id === tab);
@@ -298,6 +314,7 @@ function showTab(tab) {
   if (tab === "manifest") renderManifest();
   if (tab === "files") void refreshFiles().catch((error) => notice(error.message));
   if (tab === "timeline") renderEvents();
+  if (tab === "memory") void memoryReplay.refresh(info());
   if (tab === "results") {
     renderResults();
     void refreshResults();
@@ -306,6 +323,7 @@ function showTab(tab) {
 
 function selectRun(run) {
   if (state.selected === run) return;
+  notice("");
   state.generation += 1;
   state.selected = run;
   state.cursor = 0;
@@ -320,6 +338,7 @@ function selectRun(run) {
   state.resultData = null;
   state.resultLoading = false;
   state.benchmark = null;
+  state.pcmsBaseline = null;
   state.workers.clear();
   $("file-list").replaceChildren();
   $("follow").checked = true;
@@ -330,9 +349,14 @@ function selectRun(run) {
   renderHeader();
   renderRuns();
   const params = new URLSearchParams({run});
+  const openMemory = new URLSearchParams(location.search).get("view") === "memory";
+  if (openMemory) params.set("view", "memory");
+  if (run === comparisonRun) {
+    for (const baseline of baselineRuns) params.append("baseline", baseline);
+  }
   history.replaceState(null, "", `?${params}`);
   const selected = info();
-  showTab(selected?.manifest.benchmark || terminal.has(selected?.status) ? "results" :
+  showTab(openMemory ? "memory" : selected?.manifest.benchmark || terminal.has(selected?.status) ? "results" :
     selected?.timeline || selected?.managed ? "timeline" : "files");
   if (!state.polling) void sync();
 }
@@ -393,7 +417,12 @@ async function selectEvent(event) {
     if (generation !== state.generation || state.detailSequence !== event.seq) return;
     state.detail = detail;
     renderDetail();
-  } catch (error) { notice(error.message); }
+    clearNotice("event");
+  } catch (error) {
+    if (generation === state.generation && state.detailSequence === event.seq) {
+      notice(error.message, "event");
+    }
+  }
 }
 
 function block(label, value, collapsible = false) {
@@ -775,15 +804,47 @@ function renderBenchmarkResults(view, run) {
   view.append(workers);
   renderWorkerProgress(run, data.groups);
   const arms = run.manifest.conditions;
+  if (state.pcmsBaseline) {
+    const passed = (values) => values.filter(Boolean).length;
+    const format = (values) => values ? `${passed(values)} / ${values.length}` : "Unscored";
+    const matchedPrevious = [];
+    const matchedCurrent = [];
+    const rows = data.groups.map((group) => {
+      const previous = state.pcmsBaseline.get(group.group);
+      const scores = group.status === "complete" ? group.pcms?.sub_successes : null;
+      if (previous?.length && scores?.length === previous.length) {
+        matchedPrevious.push(...previous);
+        matchedCurrent.push(...scores);
+        const change = passed(scores) - passed(previous);
+        return [String(group.group), format(previous), format(scores), `${change > 0 ? "+" : ""}${change}`];
+      }
+      return [String(group.group), format(previous), format(scores), "—"];
+    });
+    view.append(node("h3", "Travelers passed by group"));
+    if (matchedPrevious.length) {
+      view.append(node("p", `Travelers with both scores · ${format(matchedPrevious)} previous PCMS · ${format(matchedCurrent)} task-agnostic PCMS`, "subtle"));
+    }
+    view.append(resultTable(["Group", "Previous PCMS", "Task-agnostic PCMS", "Change"], rows));
+  }
   if (arms.length === 1) {
     const reference = node("p", "Published MAGE on all 270 groups · 15.19% group success · 53.51% average group progress · 1.978M tokens per group");
     const link = node("a", "MAGE paper, Table 3");
     link.href = "https://aclanthology.org/2026.emnlp-main.828.pdf#page=8";
     view.append(reference, link);
   }
+  if (run.manifest.partition === "repair-checks" && arms.length === 1 && arms[0] === "pcms") {
+    const complete = data.groups.filter((group) => group.status === "complete" && group.pcms?.usage);
+    const travelers = complete.reduce((total, group) => total + group.travelers, 0);
+    if (travelers) {
+      const billed = complete.reduce((total, group) => total + group.pcms.usage.cost_rub, 0);
+      const projection = Math.round(billed / travelers * 1869).toLocaleString();
+      view.append(node("p", `Estimated PCMS cost for the full release · ₽${projection} at the billed rate for ${travelers} travelers in ${complete.length} of 7 recheck groups. The rechecks were selected because they previously failed.`, "subtle"));
+    }
+  }
   const fraction = (numerator, denominator) => denominator ?
     `${numerator} / ${denominator} (${(100 * numerator / denominator).toFixed(1)}%)` : "—";
-  for (const [key, title] of Object.entries({all: "Full release", holdout: "Held-out groups", validation: "Validation", dev: "Development"})) {
+  const scope = { "repair-checks": "Seven-case rerun", selected: "Selected groups" }[run.manifest.partition] || "Full release";
+  for (const [key, title] of Object.entries({all: scope, holdout: "Held-out groups", validation: "Validation", dev: "Development"})) {
     const split = data.splits?.[key];
     if (!split) continue;
     const values = (callback) => arms.map((arm) => split.arms?.[arm] ? callback(split.arms[arm]) : "—");
@@ -875,6 +936,7 @@ async function sync() {
   if (state.polling) return;
   state.polling = true;
   try {
+    if (!state.config || $("notice").dataset.source === "poll") await loadConfig();
     const previous = info();
     state.runs = await api("/api/runs");
     if (!state.selected && state.runs.length) {
@@ -886,6 +948,14 @@ async function sync() {
     const current = info();
     if (current?.manifest.benchmark) {
       const benchmark = await get("benchmark", {run: current.id});
+      if (current.id === comparisonRun && baselineRuns.length && !state.pcmsBaseline) {
+        const baselines = await Promise.allSettled(baselineRuns.map((run) => get("benchmark", {run})));
+        if (state.selected === current.id) {
+          state.pcmsBaseline = new Map(baselines.flatMap((response) => response.status === "fulfilled" ? response.value.groups
+            .filter((group) => group.status === "complete" && group.pcms?.sub_successes)
+            .map((group) => [group.group, group.pcms.sub_successes]) : []));
+        }
+      }
       if (state.selected === current.id) {
         const changed = JSON.stringify(benchmark) !== JSON.stringify(state.benchmark);
         state.benchmark = benchmark;
@@ -897,10 +967,12 @@ async function sync() {
         }
       }
     }
-    if (previous?.id === current?.id && !terminal.has(previous?.status) && terminal.has(current?.status)) showTab("results");
+    if (state.tab !== "memory" && previous?.id === current?.id && !terminal.has(previous?.status) && terminal.has(current?.status)) showTab("results");
     await refreshEvents();
     if (state.tab === "files") await refreshFiles();
-  } catch (error) { notice(error.message); }
+    if (state.tab === "memory") void memoryReplay.refresh(current);
+    clearNotice("poll");
+  } catch (error) { notice(error.message, "poll"); }
   finally { state.polling = false; }
 }
 
@@ -927,10 +999,12 @@ function showExperiment() {
   $("paired-fields").hidden = !paired;
   $("group-fields").hidden = benchmark;
   $("worker-field").hidden = !benchmark;
+  $("pcms-read-field").hidden = !benchmark;
+  $("repair-checks-field").hidden = !benchmark;
   $("pcms-only-field").hidden = !benchmark;
   if (benchmark) {
     const form = $("experiment").form;
-    form.elements.max_steps.value = 12;
+    form.elements.max_steps.value = 40;
     form.elements.memory_tokens.value = 256;
     form.elements.thinking.checked = false;
   }
@@ -956,6 +1030,8 @@ async function launch(event) {
     if (data.experiment === "benchmark") {
       data.workers = Number(fields.get("workers"));
       data.pcms_only = fields.has("pcms_only");
+      data.pcms_read_mode = fields.get("pcms_read_mode");
+      data.repair_checks_only = fields.has("repair_checks_only");
     } else {
       data.group = Number(fields.get("group"));
       data.turns = fields.get("turns") ? Number(fields.get("turns")) : null;
@@ -978,20 +1054,18 @@ async function copy(text) {
   catch (error) { notice(`Clipboard unavailable: ${error.message}`); }
 }
 
-async function boot() {
-  try {
-    state.config = await api("/api/config");
-    for (const group of state.config.groups) {
-      const option = node("option", `Group ${group}`);
-      option.value = group;
-      $("groups").append(option);
-    }
-    await sync();
-    setInterval(sync, 1600);
-  } catch (error) { notice(error.message); }
+async function loadConfig() {
+  state.config = await api("/api/config");
+  $("groups").replaceChildren(...state.config.groups.map(group => new Option(`Group ${group}`, group)));
+}
+
+function boot() {
+  void sync();
+  setInterval(sync, 1600);
 }
 
 if (typeof document !== "undefined") {
+  memoryReplay.bindControls();
   for (const tab of views) $(`${tab}-tab`).addEventListener("click", () => showTab(tab));
   for (const [id, action] of Object.entries({resume: "run", pause: "pause", step: "step", stop: "stop", terminate: "terminate"})) {
     $(id).addEventListener("click", () => { void control(action); });

@@ -1,6 +1,6 @@
 """Model-driven writes and reads over an append-only evidence journal."""
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import json
 from pathlib import Path
 import re
@@ -69,10 +69,14 @@ class Evidence:
     id: str
     kind: str
     text: str
+    subject: str | None = None
 
     def __post_init__(self):
         if self.kind not in {"user", "tool", "action"} or not self.id or not self.text.strip():
             raise ValueError("Evidence requires an ID, text and a known source type")
+        if self.subject is not None and (not isinstance(self.subject, str)
+                                         or not self.subject.strip() or self.subject != self.subject.strip()):
+            raise ValueError("An evidence subject must be a canonical concept name")
 
 
 def quoted_cents(amount: str, quote: str) -> int:
@@ -136,21 +140,26 @@ class ConceptMemory:
             table, row = item["table"], item["row"]
             if table is not None and (table not in concepts or not row or not row.strip()):
                 raise ValueError("A structured row needs a named owner concept and row key")
-            price = item["purchase_price_quote"]
+            source_order = item.get("source_order")
+            if source_order is not None and (event.kind != "tool" or type(source_order) is not int or source_order < 0):
+                raise ValueError("Source ordering requires an ordered tool observation")
+            price = item.get("purchase_price_quote")
             cents = None
             if price is not None:
                 if status != "confirmed" or event.kind != "tool" or not table:
                     raise ValueError("Purchase price must be explicit in a confirmed tool receipt")
                 cents = quoted_cents(price, quote)
-            slot = item["purchase_slot"]
+            slot = item.get("purchase_slot")
             if slot is not None and (cents is None or not re.search(rf"\b(?:product|slot)\s+{slot}\b", quote, re.I)):
                 raise ValueError("A purchase slot must be explicit in its priced receipt")
-            budget = item["bundle_budget_quote"]
+            budget = item.get("bundle_budget_quote")
             if budget is not None and (status != "confirmed" or not table or cents is not None):
                 raise ValueError("Bundle budget must be a separate confirmed table row")
             records.append(Memory(f"{event.id}:{index}", len(self.events) + 1, event.id,
                                   concepts, quote, status, table, row, cents,
-                                  quoted_cents(budget, quote) if budget is not None else None, slot))
+                                  quoted_cents(budget, quote) if budget is not None else None, slot,
+                                  constraint_family=item.get("constraint_family"), source_order=source_order,
+                                  subject=item.get("subject")))
         snapshot = Snapshot(tuple([*self.records, *records]), through=len(self.events) + 1)
         aliases = []
         for item in output.get("aliases", []):
@@ -168,6 +177,9 @@ class ConceptMemory:
         self.records.extend(records)
         self.aliases.extend(aliases)
 
+    def _write(self, operation, data):
+        return self.complete(operation, WRITER, data, WRITE_SCHEMA)
+
     def observe(self, event: Evidence) -> list[Memory]:
         if event.id in self.events:
             if self.events[event.id] != event:
@@ -178,24 +190,25 @@ class ConceptMemory:
         if self.trace:
             self.trace.emit("evidence", "Incoming evidence", evidence=event, journal=self.path.name)
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        pending = None
         if self.pending_path.exists():
             pending = Evidence(**json.loads(self.pending_path.read_text(encoding="utf-8")))
-            if event != pending:
+            if event != pending and not (pending.subject is None and replace(event, subject=None) == pending):
                 raise ValueError(f"Resume unresolved evidence {pending.id} before appending a later event")
-        else:
+        if event != pending:
             staging = self.pending_path.with_suffix(".tmp")
             staging.write_text(json.dumps(asdict(event), ensure_ascii=False), encoding="utf-8")
             staging.replace(self.pending_path)
         data = {"catalog": self.catalog(self.snapshot()), "event": asdict(event)}
         try:
-            output = self.complete("write", WRITER, data, WRITE_SCHEMA)
+            output = self._write("write", data)
             records, aliases = self._extract(event, output)
         except (ValueError, TypeError, KeyError) as error:
             # Keep the original raw evidence and allow a single corrected write.
             if self.trace:
                 self.trace.emit("error", "Writer output rejected", evidence_id=event.id, error=str(error))
             data["validation_error"] = str(error)
-            output = self.complete("write-repair", WRITER, data, WRITE_SCHEMA)
+            output = self._write("write-repair", data)
             records, aliases = self._extract(event, output)
         if self.trace:
             candidate = self.trace.emit("memory", "Validated extraction", evidence_id=event.id,

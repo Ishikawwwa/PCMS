@@ -15,8 +15,10 @@ import webbrowser
 
 from constraint_memory.secrets import load_env, redact
 
+from .black_box_memory import READ_MODES
 from .lab_trace import atomic_json, read_json
 from .run_live import ROOT
+from .run_travel_benchmark import ARMS, reconcile_saved_scores, summarize
 
 
 UI = Path(__file__).with_name("lab_ui")
@@ -61,7 +63,27 @@ class Runs:
     def control_path(self, run):
         return self.controls / f"{run}.json"
 
-    def launch(self, options):
+    def recover(self, run):
+        folder = self.folder(run)
+        manifest = read_json(folder / "manifest.json", {})
+        if manifest.get("benchmark") != "travel" or manifest.get("status") not in {"running", "failed", "stopped"}:
+            raise Conflict("Choose an interrupted travel benchmark")
+        options = {
+            "experiment": "benchmark",
+            "memory_tokens": manifest["memory_tokens"],
+            "max_steps": manifest["max_steps"],
+            "thinking": manifest["actor_thinking"],
+            "workers": manifest["workers"],
+            "pcms_only": manifest["conditions"] == ["pcms"],
+            "pcms_read_mode": manifest.get("pcms_read_mode", "raw"),
+            "repair_checks_only": manifest["partition"] == "repair-checks",
+            "verify_repair_first": bool(manifest["repair_check_groups"]),
+        }
+        if manifest["partition"] == "selected":
+            options["groups"] = [row["group"] for row in self.benchmark(run)["groups"]]
+        return self.launch(options, recover=run)
+
+    def launch(self, options, *, recover=None):
         if not isinstance(options, dict):
             raise ValueError("Expected run options")
         experiment = options.get("experiment")
@@ -84,14 +106,26 @@ class Runs:
             if experiment == "benchmark":
                 module = "run_travel_benchmark"
                 args += ["--workers", str(integer(options.get("workers", 8), "Workers", 1, 16))]
+                read_mode = options.get("pcms_read_mode", "raw")
+                if read_mode not in READ_MODES:
+                    raise ValueError("Unknown PCMS read mode")
+                args += ["--pcms-read-mode", read_mode]
                 if options.get("pcms_only") is True:
                     args.append("--pcms-only")
                 if options.get("verify_repair_first") is True:
                     args.append("--verify-repair-first")
+                if options.get("repair_checks_only") is True:
+                    args.append("--repair-checks-only")
+                if "groups" in options:
+                    groups = options["groups"]
+                    if not isinstance(groups, list) or not groups:
+                        raise ValueError("Choose at least one group")
+                    args.extend(["--groups", *(str(integer(group, "Group", 1, 270)) for group in groups)])
                 if thinking:
                     args.append("--actor-thinking")
             else:
                 module = "run_mage_travel"
+                args.append("--black-box-memory")
                 group = integer(options.get("group"), "Development group", 1, 270)
                 if group not in self.groups():
                     raise ValueError("Select a development group")
@@ -101,14 +135,19 @@ class Runs:
         else:
             raise ValueError("Choose an experiment")
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
-        run = f"concept-subspaces-lab-{experiment}-{stamp}-{secrets.token_hex(3)}"
+        run = recover or f"concept-subspaces-lab-{experiment}-{stamp}-{secrets.token_hex(3)}"
+        if recover:
+            args.append("--recover")
         out = self.directory / run
         control = self.control_path(run)
         command = [sys.executable, "-X", "utf8", "-m", f"experiments.concept_subspaces.{module}", *args,
                    "--memory-tokens", str(memory_tokens), "--out", str(out), "--lab-control", str(control)]
         with self.lock:
-            atomic_json(control, {"mode": "pause", "revision": 0})
-            with (self.controls / f"{run}.log").open("wb") as log:
+            if run in self.children and self.children[run].poll() is None:
+                raise Conflict("This benchmark already has a supervisor")
+            revision = read_json(control, {}).get("revision", 0) + 1 if recover else 0
+            atomic_json(control, {"mode": "run" if recover else "pause", "revision": revision})
+            with (self.controls / f"{run}.log").open("ab" if recover else "wb") as log:
                 process = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL,
                                            stdout=log, stderr=subprocess.STDOUT,
                                            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
@@ -201,6 +240,22 @@ class Runs:
             atomic_json(control, command)
             return self.describe(run)
 
+    def benchmark(self, run):
+        data = read_json(self.file(run, "benchmark.json"))
+        info = self.describe(run)
+        if info["managed"] and info.get("exit_code") is None:
+            return data
+        arms = tuple(info["manifest"].get("conditions", ()))
+        if arms not in (ARMS, ("pcms",)):
+            return data
+        rows = {row["group"]: row for row in data["groups"]}
+        if reconcile_saved_scores(self.folder(run), rows, arms):
+            partitions = {"all": list(rows)}
+            for name in ("holdout", "validation", "dev"):
+                partitions[name] = [group for group, row in rows.items() if row.get("partition") == name]
+            data["splits"] = summarize(rows, partitions, arms)
+        return data
+
     def files(self, run):
         folder = self.folder(run)
         files = []
@@ -254,6 +309,39 @@ def event_batch(path, offset):
                            tokens=data.get("total_tokens"), cost=data.get("cost_rub"))
             events.append(summary)
         return {"next": stream.tell(), "events": events}
+
+
+def memory_batch(path, offset):
+    """Read a bounded slice of memory events without sending actor prompts or tool snapshots."""
+    events = []
+    with path.open("rb") as stream:
+        stream.seek(min(offset, path.stat().st_size))
+        while len(events) < 100 and stream.tell() - offset < 4 * 1024 * 1024:
+            start = stream.tell()
+            line = stream.readline()
+            if not line.endswith(b"\n"):
+                return {"next": start, "events": events, "caught_up": True}
+            try:
+                row = json.loads(line)
+            except (ValueError, UnicodeError):
+                continue
+            if row["kind"] in {"memory", "evidence", "retrieval", "error"} or row["title"] in {
+                "PCMS traveler task prepared", "PCMS traveler turn ended", "MAGE execution state",
+            }:
+                if row["title"] == "MAGE execution state":
+                    data = row["data"]
+                    row["data"] = {key: data.get(key) for key in ("condition", "turn", "active_node", "active_summary")}
+                    row["offset"] = start
+                elif row["title"] == "PCMS traveler turn ended":
+                    row["data"] = {key: row["data"].get(key) for key in ("turn", "condition")}
+                events.append(row)
+        return {"next": stream.tell(), "events": events, "caught_up": False}
+
+
+def memory_timeline(runs, run, case):
+    if case and not re.fullmatch(r"group-\d{3}/attempt-\d+", case):
+        raise FileNotFoundError("Unknown case")
+    return runs.file(run, f"{case}/timeline.jsonl" if case else "timeline.jsonl")
 
 
 def file_page(path, end):
@@ -319,6 +407,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
 
             static = {"/": ("index.html", "text/html"), "/lab.css": ("lab.css", "text/css"),
+                      "/memory.js": ("memory.js", "text/javascript"),
                       "/lab.js": ("lab.js", "text/javascript")}
             if target.path in static:
                 name, kind = static[target.path]
@@ -339,7 +428,21 @@ class Handler(BaseHTTPRequestHandler):
                     raise FileNotFoundError("Timeline is outside the run")
                 self.json(200, event_batch(path, max(0, int(query.get("after", "0")))))
             elif target.path == "/api/benchmark":
-                self.json(200, read_json(runs.file(run, "benchmark.json")))
+                self.json(200, runs.benchmark(run))
+            elif target.path == "/api/memory-cases":
+                cases = [path.parent.relative_to(folder).as_posix()
+                         for path in folder.glob("group-*/attempt-*/timeline.jsonl")
+                         if path.resolve().is_relative_to(folder)
+                         and re.fullmatch(r"group-\d{3}/attempt-\d+", path.parent.relative_to(folder).as_posix())]
+                self.json(200, sorted(cases, key=lambda case: (case.split("/")[0], int(case.rsplit("-", 1)[-1]))))
+            elif target.path == "/api/memory":
+                path = memory_timeline(runs, run, query.get("case", ""))
+                self.json(200, memory_batch(path, max(0, int(query.get("after", "0")))))
+            elif target.path == "/api/memory-event":
+                path = memory_timeline(runs, run, query.get("case", ""))
+                with path.open("rb") as stream:
+                    stream.seek(max(0, int(query["offset"])))
+                    self.json(200, json.loads(stream.readline()))
             elif target.path == "/api/event":
                 with runs.file(run, "timeline.jsonl").open("rb") as stream:
                     stream.seek(max(0, int(query["offset"])))
@@ -373,9 +476,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--open", action="store_true", help="Open the console in the default browser")
+    parser.add_argument("--recover", metavar="RUN", help="Restart an interrupted travel benchmark after its workers have exited")
     args = parser.parse_args()
     load_env(ROOT / ".env")
     with LabHTTP(("127.0.0.1", args.port), Runs(ROOT / "runs")) as server:
+        if args.recover:
+            server.runs.recover(args.recover)
         url = f"http://127.0.0.1:{server.server_port}/"
         print(f"Concept Memory Lab is listening at {url}", flush=True)
         if args.open:

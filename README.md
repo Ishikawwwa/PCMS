@@ -4,6 +4,13 @@ Per-concept memory subspaces (PCMS) indexes source-backed evidence by concept, t
 
 See the [lab setup and run instructions](reports/concept_subspaces/lab_console.md). The PCMS implementation, runner, and dashboard are in [experiments/concept_subspaces](experiments/concept_subspaces). The repository also includes the supporting constraint-memory experiments and the separate [Mnemos workbench](mnemos/README.md).
 
+## Experiment format
+
+Write both parts before starting each new experiment.
+
+1. **Hypothesis statement.** Explain what went wrong in the previous run, cite an observation from its results or traces, and say why the proposed change should fix it. Identify the comparison baseline, the change being tested, and the settings held fixed.
+2. **Expected results.** Name the primary metric, its baseline value, and the minimum improvement that would support the hypothesis. Say what trace evidence would confirm the proposed mechanism and what outcome would count against it. Distinguish a promising result on reused cases from confirmation on untouched cases.
+
 ## Constraint Memory Lab
 
 A runnable research implementation aimed at improving MemoryArena Group Travel Planning beyond MAGE with the **same Qwen3.6-27B backbone**, served by Polza.ai. It is not yet a demonstrated performance improvement.

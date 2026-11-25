@@ -16,7 +16,10 @@ from constraint_memory.config import verify_tokenizer
 from constraint_memory.secrets import load_env, redact
 
 from .lab_trace import LabPolzaClient, LabStopped, LabTrace
+from .black_box_memory import READ_MODES
+from .jev import JEV_MODEL, JevRelevance
 from .pcms_travel import run_pcms
+from .legacy_pcms_travel import run_pcms as run_legacy_pcms
 from .run_live import ROOT, append_json, write_json
 
 
@@ -131,12 +134,21 @@ def main():
     parser.add_argument("--memory-tokens", type=int, default=256)
     parser.add_argument("--first-arm", choices=("mage", "pcms"), default="mage")
     parser.add_argument("--pcms-only", action="store_true")
+    parser.add_argument("--black-box-memory", action="store_true",
+                        help="Use domain-neutral memory over raw user and tool evidence")
+    parser.add_argument("--pcms-read-mode", choices=READ_MODES, default="raw")
+    parser.add_argument("--transient-retries", type=int, choices=range(4), default=0)
     parser.add_argument("--actor-thinking", action=argparse.BooleanOptionalAction, default=True,
                         help="Disable in both arms for a faster development diagnostic")
     parser.add_argument("--lab-control", type=Path, help=argparse.SUPPRESS)
     parser.add_argument("--lab-state", type=Path, help=argparse.SUPPRESS)
+    parser.add_argument("--resume-pcms", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--partition", choices=("dev", "all"), default="dev")
     args = parser.parse_args()
+    if args.pcms_read_mode != "raw" and not args.black_box_memory:
+        parser.error("Compact retrieval requires --black-box-memory")
+    if args.resume_pcms and not (args.pcms_only and args.black_box_memory):
+        parser.error("Action checkpoint recovery supports standalone PCMS")
     if min(args.max_steps, args.memory_tokens) <= 0 or (args.turns is not None and args.turns <= 0):
         parser.error("Step, turn and memory limits must be positive")
 
@@ -166,7 +178,7 @@ def main():
     if args.turns:
         sample = {**sample, "questions": sample["questions"][:args.turns], "answers": sample["answers"][:args.turns]}
 
-    args.out.mkdir(parents=True, exist_ok=False)
+    args.out.mkdir(parents=True, exist_ok=args.resume_pcms)
     load_env(ROOT / ".env")
     config = yaml.safe_load((ROOT / "configs/travel.yaml").read_text(encoding="utf-8"))
     agent = config["agent"]
@@ -178,6 +190,10 @@ def main():
     manifest = {"status": "running", "author_commit": head, "model": agent["model"], "route": agent["routing"],
                 "conditions": conditions, "comparison": "pcms_vs_published_mage" if args.pcms_only else "official_mage_vs_standalone_pcms",
                 "interrupted_stream_retries_per_arm": stream_retries,
+                "transient_retries_per_request": args.transient_retries,
+                "pcms_memory": "black-box" if args.black_box_memory else "legacy",
+                "pcms_read_mode": args.pcms_read_mode,
+                "jev_model": JEV_MODEL if args.pcms_read_mode == "jev-compact" else None,
                 "budget_scope": "actions per traveler attempt; official MAGE verification and replay retained",
                 "group": args.group, "turns": len(sample["questions"]), "full_turns": full_turns,
                 "max_steps": args.max_steps, "memory_tokens": args.memory_tokens,
@@ -187,17 +203,28 @@ def main():
                 "seed": config["experiment"]["seed"], "actor_completion_cap": agent["max_completion_tokens"],
                 "actor_thinking": args.actor_thinking,
                 "source_sha256": {file.name: sha256(file.read_bytes()).hexdigest() for file in source_paths}}
-    with ZipFile(args.out / "source.zip", "x", ZIP_DEFLATED) as archive:
-        for path in source_paths:
-            archive.write(path, path.relative_to(ROOT))
-    write_json(args.out / "manifest.json", manifest)
     trace = LabTrace(args.out, args.lab_control, args.lab_state)
-    trace.emit("run", "Paired MAGE run ready", manifest=manifest)
+    if args.resume_pcms:
+        saved = json.loads((args.out / "manifest.json").read_bytes())
+        settings = manifest.keys() - {"status", "source_sha256"}
+        if any(saved.get(key) != json.loads(json.dumps(manifest[key])) for key in settings):
+            parser.error("PCMS checkpoint settings must match the saved attempt")
+        trace.resume()
+        trace.emit("run", "PCMS attempt resumed", source_sha256=manifest["source_sha256"])
+        manifest = saved
+        manifest.update(status="running")
+        manifest.pop("error", None)
+    else:
+        with ZipFile(args.out / "source.zip", "x", ZIP_DEFLATED) as archive:
+            for path in source_paths:
+                archive.write(path, path.relative_to(ROOT))
+        trace.emit("run", "Paired MAGE run ready", manifest=manifest)
+    write_json(args.out / "manifest.json", manifest)
     author = mage.TravelPlanMAGEAgent
     try:
         for condition in conditions:
             directory = args.out / condition
-            directory.mkdir()
+            directory.mkdir(exist_ok=args.resume_pcms)
             trace.emit("run", "Comparison arm started", condition=condition)
             trace.before("Start comparison arm", category="arm", condition=condition)
             with LabPolzaClient(trace=trace, model=agent["model"], base_url=agent["base_url"], provider=agent["routing"],
@@ -205,6 +232,7 @@ def main():
                              max_tokens=agent["max_completion_tokens"], extraction_max_tokens=2048,
                              extraction_reasoning=agent["extraction_reasoning"], stream=agent["stream"],
                              retries=2, interrupted_stream_retries=stream_retries,
+                             transient_retries=args.transient_retries,
                              timeout=agent["request_timeout_seconds"], max_total_tokens=math.inf,
                              max_cost_rub=None, usage_path=directory / "usage.jsonl") as client:
                 runtime = env.TravelPlanRuntime(query_id=query_id, csv_path=args.train_csv)
@@ -212,9 +240,16 @@ def main():
                 if condition == "mage":
                     active = run_mage(mage, author, runtime, sample, llm, directory, args.max_steps, trace)
                 else:
-                    active = run_pcms(sample, runtime, env, llm, directory,
-                                      lambda s: len(tokenizer.encode(s, add_special_tokens=False).ids),
-                                      args.max_steps, args.memory_tokens, trace)
+                    pcms = run_pcms if args.black_box_memory else run_legacy_pcms
+                    read_options = {}
+                    if args.black_box_memory:
+                        read_options["read_mode"] = args.pcms_read_mode
+                        read_options["resume"] = args.resume_pcms
+                        if args.pcms_read_mode == "jev-compact":
+                            read_options["judge"] = JevRelevance(client, trace)
+                    active = pcms(sample, runtime, env, llm, directory,
+                                  lambda s: len(tokenizer.encode(s, add_special_tokens=False).ids),
+                                  args.max_steps, args.memory_tokens, trace, **read_options)
             trace.before("Score comparison arm", category="score", condition=condition)
             scores = scoring.score_travelers(sample["base_person"]["daily_plans"], sample["answers"], active)["sub_successes"]
             if len(scores) != len(sample["questions"]):

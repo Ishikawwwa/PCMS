@@ -63,6 +63,21 @@ class LabTrace:
         self.sequence = 0
         self.last_step = None
 
+    def resume(self):
+        """Continue numbering after the last complete event written by an exited worker."""
+        if not self.timeline.exists():
+            return
+        with self.timeline.open("r+b") as stream:
+            while True:
+                offset = stream.tell()
+                line = stream.readline()
+                if not line:
+                    break
+                if not line.endswith(b"\n"):
+                    stream.truncate(offset)
+                    break
+                self.sequence = json.loads(line)["seq"]
+
     def emit(self, kind, title, **data):
         self.sequence += 1
         row = {"seq": self.sequence, "at": datetime.now(timezone.utc).isoformat(), "kind": kind,
@@ -106,11 +121,12 @@ class LabTrace:
 class LabPolzaClient(PolzaClient):
     """Trace the exact completion payload and returned data without HTTP headers."""
 
-    def __init__(self, *, trace, interrupted_stream_retries=0, **kwargs):
+    def __init__(self, *, trace, interrupted_stream_retries=0, transient_retries=0, **kwargs):
         super().__init__(**kwargs)
         self.trace = trace
         self.call_sequence = None
         self.interrupted_stream_retries = interrupted_stream_retries
+        self.transient_retries = transient_retries
         self._recovered_attempts = set()
 
     def _check_budget(self, messages, output_cap, tools=None):
@@ -122,20 +138,41 @@ class LabPolzaClient(PolzaClient):
         super()._check_budget(messages, output_cap, tools)
 
     def complete(self, *args, **kwargs):
-        self.call_sequence = None
-        try:
-            return super().complete(*args, **kwargs)
-        except ProviderError as error:
-            interrupted = any(f"stream failed ({code})" in str(error) for code in ("truncated", "read_failed"))
-            if not (self.interrupted_stream_retries and interrupted and error.request_sent is True):
-                raise
-            self.interrupted_stream_retries -= 1
-            self._recovered_attempts.add(id(self.records[-1]))
-            self.trace.emit("error", "Retrying interrupted model request", request=self.call_sequence,
-                            request_id=error.request_id, previous_billing_known=error.usage is not None,
-                            remaining_retries=self.interrupted_stream_retries)
+        transient_attempts = 0
+        while True:
             self.call_sequence = None
-            return super().complete(*args, **kwargs)
+            try:
+                return super().complete(*args, **kwargs)
+            except ProviderError as error:
+                if transient_attempts < self.transient_retries and any(fragment in str(error) for fragment in (
+                    "HTTP 429 for /api/v1/chat/completions", "HTTP 502 for /api/v1/chat/completions",
+                    "HTTP 503 for /api/v1/chat/completions", "HTTP 504 for /api/v1/chat/completions",
+                    "stream failed (provider_error)", "Polza stream id metadata changed",
+                    "Polza network request failed",
+                )):
+                    transient_attempts += 1
+                    delay = 10 * 2 ** (transient_attempts - 1)
+                    self._discard_connection()
+                    self._recovered_attempts.add(id(self.records[-1]))
+                    self.trace.emit("error", "Retrying transient Polza failure", request=self.call_sequence,
+                                    request_id=error.request_id, error=str(error),
+                                    previous_billing_known=error.usage is not None, delay_seconds=delay)
+                    self.trace.before("Retry Polza request", category="model", request=self.call_sequence)
+                    time.sleep(delay)
+                    continue
+                return self._recover_interrupted_stream(error, args, kwargs)
+
+    def _recover_interrupted_stream(self, error, args, kwargs):
+        interrupted = any(f"stream failed ({code})" in str(error) for code in ("truncated", "read_failed"))
+        if not (self.interrupted_stream_retries and interrupted and error.request_sent is True):
+            raise error
+        self.interrupted_stream_retries -= 1
+        self._recovered_attempts.add(id(self.records[-1]))
+        self.trace.emit("error", "Retrying interrupted model request", request=self.call_sequence,
+                        request_id=error.request_id, previous_billing_known=error.usage is not None,
+                        remaining_retries=self.interrupted_stream_retries)
+        self.call_sequence = None
+        return super().complete(*args, **kwargs)
 
     def _request(self, method, path, payload=None, authenticated=True):
         if method != "POST" or path != "/chat/completions":
@@ -152,6 +189,14 @@ class LabPolzaClient(PolzaClient):
         self.trace.emit("response", "Polza completion response", request=self.call_sequence,
                         scope=scope, response=response)
         return response
+
+    def system_one(self, payload):
+        previous = self.call_sequence
+        self.call_sequence = None
+        try:
+            return super().system_one(payload)
+        finally:
+            self.call_sequence = previous
 
     def _record_usage(self, record):
         super()._record_usage(record)

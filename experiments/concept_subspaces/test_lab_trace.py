@@ -21,6 +21,29 @@ def wait_for_state(path, status, operation):
     pytest.fail(f"Worker did not reach {status} at {operation}")
 
 
+def test_restarted_lab_recovers_scores_written_before_summary(tmp_path):
+    run = "concept-subspaces-lab-benchmark-interrupted"
+    folder = tmp_path / run
+    case = folder / "group-002" / "attempt-1"
+    for arm in ("mage", "pcms"):
+        (case / arm).mkdir(parents=True)
+    atomic_json(folder / "manifest.json", {"status": "running", "conditions": ["mage", "pcms"]})
+    row = {"group": 2, "partition": "dev", "travelers": 2, "attempt": 1, "status": "running"}
+    atomic_json(folder / "benchmark.json", {"groups": [row]})
+    atomic_json(case / "pcms" / "result.json", {"task_success": False, "sub_successes": [1, 0]})
+    (case / "pcms" / "usage.jsonl").write_bytes(b'{"request_status":"completed","total_tokens":12,"cost_rub":0.5}\n{"')
+
+    assert Runs(tmp_path).benchmark(run)["groups"] == [row]
+    atomic_json(case / "mage" / "result.json", {"task_success": True, "sub_successes": [1, 1]})
+    recovered = Runs(tmp_path).benchmark(run)
+    assert recovered["groups"][0]["status"] == "complete"
+    pcms = recovered["splits"]["all"]["arms"]["pcms"]
+    assert (pcms["travelers_passed"], pcms["travelers_scored"], pcms["tokens"]) == (1, 2, 12)
+    assert pcms["unknown_cost"] == 1
+    assert recovered["splits"]["dev"]["paired"] == 1
+    assert read_json(folder / "benchmark.json")["groups"] == [row]
+
+
 def test_pause_step_resume_and_stop_at_boundaries(tmp_path):
     control = tmp_path / "control.json"
     trace = LabTrace(tmp_path, control)
@@ -94,6 +117,27 @@ def test_interrupted_stream_retry_keeps_failed_attempt_and_separate_request(tmp_
     rows = list(map(json.loads, trace.timeline.read_text(encoding="utf-8").splitlines()))
     assert len([row for row in rows if row["kind"] == "prompt"]) == 2
     assert any(row["title"] == "Retrying interrupted model request" for row in rows)
+
+
+def test_transient_retries_keep_unknown_usage_and_retry_same_request(tmp_path, monkeypatch):
+    monkeypatch.setattr("experiments.concept_subspaces.lab_trace.time.sleep", lambda delay: None)
+    attempts = []
+
+    def transport(method, path, payload):
+        attempts.append(payload)
+        if len(attempts) == 1:
+            raise ProviderError("Polza returned HTTP 503 for /api/v1/chat/completions")
+        if len(attempts) == 2:
+            raise ProviderError("Polza completion stream failed (provider_error)", request_sent=True)
+        return {"id": "ok", "model": "qwen/qwen3.6-27b", "choices": [{"message": {"content": "OK"}}],
+                "usage": {"prompt_tokens": 8, "completion_tokens": 2}}
+
+    with LabPolzaClient(trace=LabTrace(tmp_path), api_key="pza_demo_secret", transport=transport,
+                        transient_retries=2, max_total_tokens=math.inf, max_cost_rub=None) as client:
+        assert client.complete([{"role": "user", "content": "Continue"}])["id"] == "ok"
+        assert [record["request_status"] for record in client.records] == ["failed", "failed", "completed"]
+        assert all(record["cost_rub"] is None for record in client.records[:2])
+    assert attempts[0] == attempts[1] == attempts[2]
 
 
 def test_breakpoint_skips_current_match_and_pauses_before_next_match(tmp_path):

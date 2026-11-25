@@ -41,7 +41,7 @@ The console opens **Results** when a run ends. Paired runs show each arm's trave
 
 **Travel · Full benchmark** runs all 270 travel groups, including the 180-group held-out split. Choose PCMS alone with the published MAGE reference, or run both agents for a matched comparison. The launch form defaults to 12 actions per attempt, 256 PCMS memory tokens, actor reasoning disabled, and eight groups in parallel. Paired runs alternate arm order by group. The Results tab updates as groups finish and includes known charges from failed attempts. Pause waits for every active group to reach a checkpoint. Resume continues the workers, and Stop ends the run at their next checkpoints. Keep the lab server and machine running for the duration.
 
-The travel writer asks the model to index numbered spans of the traveler's request. Code copies the original text into the journal and records selected itinerary options directly from the tool state. For a malformed or truncated extraction, the repair requests fewer spans per call. The replacement PCMS-only run checks the seven groups that failed in the original paired run before scheduling the rest of the release.
+New travel runs use the same memory interface for raw user text and tool outputs. The writer indexes numbered evidence spans with a shared prompt, and the reader selects source records by ID before packing context. The agent supplies the evidence and query without preassigning concept names or row keys. The run manifest records the memory variant. For malformed or truncated writes, the repair requests fewer spans per call.
 
 ## Input files
 

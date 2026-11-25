@@ -154,6 +154,31 @@ class PolzaClient:
     def set_scope(self, group_id, traveler=None, operation="agent"):
         self.group_id, self.traveler, self.operation = group_id, traveler, operation
 
+    def system_one(self, payload):
+        started = time.perf_counter()
+        record = {"group_id": self.group_id, "traveler": self.traveler, "operation": "system-one",
+                  "category": "maintenance", "model": payload["model"], "currency": "RUB"}
+        try:
+            result = self._request("POST", "/systemone", payload)
+        except ProviderError as error:
+            failure = error
+            record.update(request_status="failed", request_sent=error.request_sent, error=str(error))
+            usage = {}
+        else:
+            record.update(request_status="completed", request_sent=True, model=result.get("model"),
+                          request_id=result.get("id"))
+            usage = result.get("usage") or {}
+        default = 0 if record["request_sent"] is False else None
+        inputs = usage.get("input_tokens", default)
+        outputs = usage.get("output_tokens", default)
+        record.update(input_tokens=inputs, output_tokens=outputs,
+                      total_tokens=inputs + outputs if inputs is not None and outputs is not None else None,
+                      cost_rub=usage.get("cost_rub", default), latency_seconds=time.perf_counter() - started)
+        self._record_usage(record)
+        if record["request_status"] == "failed":
+            raise failure
+        return result
+
     def _request(self, method, path, payload=None, authenticated=True):
         if self._closed:
             raise ProviderError("Polza client is closed")

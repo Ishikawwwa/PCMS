@@ -10,6 +10,8 @@ import time
 
 from constraint_memory.secrets import redact
 
+from .black_box_memory import READ_MODES
+from .jev import JEV_MODEL
 from .lab_trace import LabTrace, read_json, atomic_json
 from .run_live import ROOT
 
@@ -22,8 +24,16 @@ REPAIR_CHECK_GROUPS = (2, 4, 6, 8, 10, 12, 14)
 def usage(folder, arm):
     counts = dict(requests=0, failed=0, tokens=0, cost_rub=0.0, unknown_tokens=0, unknown_cost=0)
     for path in folder.glob(f"*/{arm}/usage.jsonl"):
+        if not path.resolve().is_relative_to(folder.resolve()):
+            continue
         for line in path.read_bytes().splitlines():
-            row = json.loads(line)
+            try:
+                row = json.loads(line)
+            except (ValueError, UnicodeError):
+                # A killed worker can leave a partial final usage record.
+                counts["unknown_tokens"] += 1
+                counts["unknown_cost"] += 1
+                continue
             counts["requests"] += 1
             counts["failed"] += row.get("request_status") != "completed"
             for key, field, missing in (("tokens", "total_tokens", "unknown_tokens"),
@@ -33,6 +43,51 @@ def usage(folder, arm):
                 else:
                     counts[missing] += 1
     return counts
+
+
+def reconcile_saved_scores(directory, rows, arms):
+    """Restore scores a worker wrote before the supervisor published its summary."""
+    changed = False
+    for row in rows.values():
+        if row["status"] == "complete":
+            continue
+        group_dir = directory / f"group-{row['group']:03d}"
+        attempts = {
+            int(path.name.removeprefix("attempt-")): path
+            for path in group_dir.glob("attempt-*")
+            if path.is_dir() and path.name.removeprefix("attempt-").isdigit()
+            and path.resolve().is_relative_to(directory.resolve())
+        }
+        for attempt, path in sorted(attempts.items(), reverse=True):
+            results = {}
+            for arm in arms:
+                result_path = path / arm / "result.json"
+                if not result_path.resolve().is_relative_to(path.resolve()):
+                    break
+                try:
+                    result = read_json(result_path, {})
+                except (ValueError, UnicodeError):
+                    break
+                if not isinstance(result, dict):
+                    break
+                scores = result.get("sub_successes")
+                if (type(result.get("task_success")) is not bool or not isinstance(scores, list)
+                        or len(scores) != row["travelers"]
+                        or any(type(score) not in (int, float, bool) or not 0 <= score <= 1 for score in scores)):
+                    break
+                results[arm] = {"task_success": result["task_success"], "sub_successes": scores}
+            if len(results) == len(arms):
+                for arm in arms:
+                    results[arm]["usage"] = usage(group_dir, arm)
+                row.update(results, status="complete", attempt=attempt, path=path.relative_to(directory).as_posix())
+                row.pop("error", None)
+                changed = True
+                break
+        if row["status"] != "complete" and attempts and max(attempts) > row["attempt"]:
+            attempt = max(attempts)
+            row.update(attempt=attempt, path=attempts[attempt].relative_to(directory).as_posix())
+            changed = True
+    return changed
 
 
 def summarize(rows, partitions, arms=ARMS):
@@ -62,16 +117,28 @@ def main():
         parser.add_argument(f"--{name}", type=Path, required=True)
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--memory-tokens", type=int, default=256)
-    parser.add_argument("--max-steps", type=int, default=12)
+    parser.add_argument("--max-steps", type=int, default=40)
     parser.add_argument("--actor-thinking", action="store_true")
     parser.add_argument("--pcms-only", action="store_true")
+    parser.add_argument("--pcms-read-mode", choices=READ_MODES, default="raw")
     parser.add_argument("--verify-repair-first", action="store_true")
+    parser.add_argument("--repair-checks-only", action="store_true")
+    parser.add_argument("--groups", type=int, nargs="+", help="Run only the specified group IDs")
+    parser.add_argument("--recover", action="store_true", help="Restart unfinished groups in an interrupted run")
     args = parser.parse_args()
     if not 1 <= args.workers <= 16:
         parser.error("Workers must be between 1 and 16")
     arms = ("pcms",) if args.pcms_only else ARMS
     split = read_json(ROOT / "data/manifests/splits.json")
     partitions = split["partitions"]
+    if args.groups and (args.repair_checks_only or args.verify_repair_first):
+        parser.error("--groups cannot be combined with repair-check options")
+    selected = set(REPAIR_CHECK_GROUPS if args.repair_checks_only else args.groups or partitions["all"])
+    if not selected <= set(partitions["all"]):
+        parser.error("Unknown travel group")
+    if args.groups or args.repair_checks_only:
+        partitions = {name: [group for group in members if group in selected]
+                      for name, members in partitions.items()}
     groups = partitions["all"]
     rows = {group: {"group": group, "travelers": split["groups"][str(group)]["traveler_count"],
                     "status": "queued", "attempt": 0} for group in groups}
@@ -83,29 +150,62 @@ def main():
     queue = [*check_groups, *(group for group in groups if group not in check_groups)]
     active = {}
     ready_at = {}
-    args.out.mkdir(parents=True, exist_ok=False)
     manifest = {
-        "status": "running", "benchmark": "travel", "partition": "all", "groups": len(groups),
+        "status": "running", "benchmark": "travel",
+        "partition": "repair-checks" if args.repair_checks_only else "selected" if args.groups else "all",
+        "groups": len(groups),
         "travelers": sum(row["travelers"] for row in rows.values()), "workers": args.workers,
-        "conditions": arms, "actor_thinking": args.actor_thinking, "max_steps": args.max_steps,
+        "conditions": list(arms), "actor_thinking": args.actor_thinking, "max_steps": args.max_steps,
+        "pcms_memory": "black-box",
+        "pcms_read_mode": args.pcms_read_mode,
+        "jev_model": JEV_MODEL if args.pcms_read_mode == "jev-compact" else None,
         "memory_tokens": args.memory_tokens, "model": "qwen/qwen3.6-27b",
-        "repair_check_groups": check_groups,
+        "repair_check_groups": list(check_groups),
         "route": {"only": ["chutes/fp8"], "allow_fallbacks": False},
         "started": datetime.now(timezone.utc).isoformat(),
         "pilot_seconds_per_traveler": (14 * 60 + 20 + (0 if args.pcms_only else 49 * 60 + 48)) / 5,
     }
-    atomic_json(args.out / "manifest.json", manifest)
-    trace = LabTrace(args.out)
-    trace.emit("run", "Full travel benchmark started", **manifest)
+    if args.recover:
+        saved = read_json(args.out / "manifest.json")
+        previous = {row["group"]: row for row in read_json(args.out / "benchmark.json")["groups"]}
+        settings = ("benchmark", "partition", "workers", "conditions", "actor_thinking", "max_steps",
+                    "pcms_memory", "memory_tokens", "model", "route", "repair_check_groups")
+        if (saved["status"] not in {"running", "failed", "stopped"} or previous.keys() != rows.keys()
+                or saved.get("pcms_read_mode", "raw") != args.pcms_read_mode
+                or saved.get("jev_model") != manifest["jev_model"]
+                or any(saved[key] != manifest[key] for key in settings)):
+            parser.error("Recovery settings must match the interrupted run")
+        rows.update(previous)
+        reconcile_saved_scores(args.out, rows, arms)
+        queue = [group for group in queue if rows[group]["status"] != "complete"]
+        manifest = saved
+        manifest["status"] = "running"
+        manifest.pop("error", None)
+        manifest.pop("finished", None)
+        atomic_json(args.out / "manifest.json", manifest)
+        trace = LabTrace(args.out)
+        trace.resume()
+        trace.emit("run", "Interrupted benchmark restarted", groups=queue)
+    else:
+        args.out.mkdir(parents=True, exist_ok=False)
+        atomic_json(args.out / "manifest.json", manifest)
+        trace = LabTrace(args.out)
+        trace.emit("run", "Full travel benchmark started", **manifest)
 
     def publish():
         atomic_json(args.out / "benchmark.json", {"groups": list(rows.values()), "splits": summarize(rows, partitions, arms)})
 
     def launch(group):
         row = rows[group]
-        row["attempt"] += 1
+        group_dir = args.out / f"group-{group:03d}"
+        folder = group_dir / f"attempt-{row['attempt']}"
+        resume = (args.pcms_only and (args.recover or group in retries)
+                  and (folder / "manifest.json").is_file() and (folder / "timeline.jsonl").is_file())
+        if not resume:
+            row["attempt"] += 1
+            folder = group_dir / f"attempt-{row['attempt']}"
         row["status"] = "running"
-        folder = args.out / f"group-{group:03d}" / f"attempt-{row['attempt']}"
+        row.pop("error", None)
         folder.parent.mkdir(exist_ok=True)
         checkpoint = folder.with_suffix(".state.json")
         command = [sys.executable, "-X", "utf8", "-m", "experiments.concept_subspaces.run_mage_travel",
@@ -114,15 +214,19 @@ def main():
                    "--max-steps", str(args.max_steps), "--memory-tokens", str(args.memory_tokens),
                    "--actor-thinking" if args.actor_thinking else "--no-actor-thinking",
                    "--first-arm", ARMS[(group - 1) % 2], "--lab-control", str(args.lab_control),
-                   "--lab-state", str(checkpoint)]
+                   "--lab-state", str(checkpoint), "--transient-retries", "3", "--black-box-memory"]
+        command += ["--pcms-read-mode", args.pcms_read_mode]
         if args.pcms_only:
             command.append("--pcms-only")
-        with folder.with_suffix(".log").open("wb") as log:
+        if resume:
+            command.append("--resume-pcms")
+        with folder.with_suffix(".log").open("ab" if resume else "wb") as log:
             process = subprocess.Popen(command, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=log,
                                        stderr=subprocess.STDOUT, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         active[group] = (process, folder, checkpoint)
         row["path"] = folder.relative_to(args.out).as_posix()
-        trace.emit("run", "Travel group started", group=group, attempt=row["attempt"])
+        trace.emit("run", "Travel group resumed" if resume else "Travel group started",
+                   group=group, attempt=row["attempt"])
 
     def collect(group, folder, mode):
         row = rows[group]
@@ -140,13 +244,16 @@ def main():
         else:
             row["status"] = "failed"
             row["error"] = info.get("error") or "Worker exited without a complete result"
-            if row["attempt"] == 1 and any(fragment in row["error"] for fragment in RETRYABLE):
+            if (group not in retries
+                    and any(fragment in row["error"] for fragment in RETRYABLE)):
+                retries.add(group)
                 row["status"] = "queued"
                 queue.append(group)
                 ready_at[group] = time.monotonic() + 60
         trace.emit("run", "Travel group ended", **row)
 
     state_path = args.lab_control.with_suffix(".state.json")
+    retries = set()
     publish()
     mode = "run"
     try:
